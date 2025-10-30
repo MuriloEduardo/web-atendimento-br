@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Atendimento BR - Frontend App
 
-## Getting Started
+Uma aplicação Next.js completa com sistema de autenticação, onboarding e dashboard para gerenciamento de atendimento ao cliente.
 
-First, run the development server:
+## Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### ✨ Páginas Implementadas
+
+- **Home Page** (`/`) - Página inicial com apresentação da plataforma
+- **Login** (`/login`) - Autenticação de usuários
+- **Cadastro** (`/cadastro`) - Registro de novos usuários
+- **Onboarding** (`/onboarding`) - Processo de configuração inicial
+- **Dashboard** (`/dashboard`) - Painel principal do usuário
+
+### 🔐 Sistema de Autenticação
+
+- Cadastro de usuários com validação
+- Login com email e senha
+- Tokens mock para simulação de autenticação
+- Redirecionamento automático baseado no status do usuário
+
+### 🚀 Sistema de Onboarding
+
+O onboarding é um processo de múltiplas etapas que pode ser completado ao longo de vários dias:
+
+1. **Boas-vindas** - Introdução à plataforma
+2. **Perfil** - Informações da empresa (nome, telefone, website)
+3. **Preferências** - Configurações de notificação
+4. **Verificação** - Verificação de email (simulada)
+
+**Características do Onboarding:**
+- ✅ Pode ser interrompido e retomado a qualquer momento
+- ✅ Progresso salvo automaticamente
+- ✅ Usuários podem "pular por agora" e continuar depois
+- ✅ Verificação de email simulada (5 segundos para demo)
+
+### 🗄️ Backend Mockado
+
+Todas as rotas da API são mockadas usando Next.js API Routes:
+
+#### Autenticação
+- `POST /api/auth/login` - Login de usuário
+- `POST /api/auth/register` - Cadastro de usuário
+
+#### Onboarding
+- `GET /api/onboarding/progress` - Progresso do onboarding
+- `POST /api/onboarding/profile` - Salvar perfil da empresa
+- `POST /api/onboarding/preferences` - Salvar preferências
+- `GET /api/onboarding/check-verification` - Verificar status do email
+- `POST /api/onboarding/resend-verification` - Reenviar email de verificação
+- `POST /api/onboarding/complete` - Completar onboarding
+
+#### Usuário
+- `GET /api/user/profile` - Obter dados do usuário
+
+## 🚀 Como usar
+
+### 1. Acesse a página inicial
+Visite `http://localhost:3001` para ver a página inicial.
+
+### 2. Criar uma conta
+1. Clique em "Começe agora gratuitamente"
+2. Preencha o formulário de cadastro
+3. Você será automaticamente redirecionado para o onboarding
+
+### 3. Processo de Onboarding
+1. **Boas-vindas**: Clique em "Começar configuração"
+2. **Perfil**: Preencha as informações da empresa (opcional)
+3. **Preferências**: Configure suas notificações
+4. **Verificação**: Aguarde 5 segundos e clique em "Já verifiquei"
+
+### 4. Dashboard
+Após completar o onboarding, você será redirecionado para o dashboard principal.
+
+### 5. Login com conta existente
+- Use qualquer email/senha cadastrado anteriormente
+- Usuários com onboarding incompleto serão redirecionados automaticamente
+
+## 🛠️ Tecnologias
+
+- **Next.js 16** - Framework React com App Router
+- **React 19** - Biblioteca de interface
+- **Tailwind CSS** - Estilização
+- **API Routes** - Backend mockado integrado
+
+## 🎨 Design
+
+- Interface responsiva e moderna
+- Componentes reutilizáveis
+- Feedback visual para ações do usuário
+- Loading states e tratamento de erros
+
+## 📝 Fluxo de Usuário
+
+```
+Home → Cadastro → Onboarding → Dashboard
+  ↑      ↓
+Login ←--┘
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Estados do Usuário
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. **Novo usuário**: Home → Cadastro → Onboarding
+2. **Usuário com onboarding incompleto**: Login → Onboarding
+3. **Usuário completo**: Login → Dashboard
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔧 Desenvolvimento
 
-## Learn More
+```bash
+# Instalar dependências
+npm install
 
-To learn more about Next.js, take a look at the following resources:
+# Executar em modo desenvolvimento
+npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Build para produção
+npm run build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Executar build de produção
+npm start
+```
 
-## Deploy on Vercel
+## 📊 Dados Mockados
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Os dados são armazenados em memória durante a execução. Para persistência real, implemente:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Banco de dados (PostgreSQL, MongoDB, etc.)
+- Sistema de autenticação real (NextAuth.js, Auth0, etc.)
+- Verificação de email real
+- Hash de senhas (bcrypt)
+
+## 🔐 Segurança
+
+⚠️ **IMPORTANTE**: Este é um projeto de demonstração com dados mockados. Para produção:
+
+- Implemente hash de senhas
+- Use tokens JWT reais
+- Configure HTTPS
+- Valide dados no servidor
+- Implemente rate limiting
+- Configure CORS adequadamente

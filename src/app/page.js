@@ -11,7 +11,7 @@ export default function Home() {
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 sm:items-start">
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-6">Atendimento BR</h1>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl">
+          <p className="text-lg mb-8 max-w-2xl">
             A melhor plataforma para gerenciar o atendimento ao cliente da sua empresa.
             Centralize todas as conversas, acompanhe métricas e melhore a satisfação dos seus clientes.
           </p>
@@ -44,7 +44,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="font-semibold mb-2">Chat em tempo real</h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm">
                 Converse com seus clientes em tempo real através de múltiplos canais
               </p>
             </div>
@@ -56,7 +56,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="font-semibold mb-2">Métricas detalhadas</h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm">
                 Acompanhe o desempenho da sua equipe com relatórios completos
               </p>
             </div>
@@ -68,7 +68,7 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="font-semibold mb-2">Resposta rápida</h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm">
                 Automatize respostas e reduza o tempo de atendimento
               </p>
             </div>

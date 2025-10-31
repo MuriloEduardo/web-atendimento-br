@@ -52,7 +52,7 @@ export default function CheckoutForm({ planData }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Email para Link Authentication */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium mb-2">
           Email para recibo
         </label>
         <LinkAuthenticationElement
@@ -72,7 +72,7 @@ export default function CheckoutForm({ planData }) {
 
       {/* Elemento de Pagamento */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium mb-2">
           Informações do Cartão
         </label>
         <PaymentElement
@@ -103,7 +103,7 @@ export default function CheckoutForm({ planData }) {
 
       {/* Endereço de Cobrança */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium mb-2">
           Endereço de Cobrança
         </label>
         <AddressElement
@@ -141,7 +141,7 @@ export default function CheckoutForm({ planData }) {
 
       {/* Informações de Segurança */}
       <div className="bg-gray-50 rounded-lg p-4">
-        <div className="flex items-center text-sm text-gray-600">
+        <div className="flex items-center text-sm">
           <div className="mr-2">🔒</div>
           <div>
             <p className="font-medium">Pagamento 100% Seguro</p>
@@ -149,21 +149,6 @@ export default function CheckoutForm({ planData }) {
           </div>
         </div>
       </div>
-
-      {/* Termos e Condições */}
-      {planData?.trial && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-sm text-blue-800">
-            <p className="font-medium mb-2">Sobre seu teste grátis:</p>
-            <ul className="space-y-1 list-disc list-inside">
-              <li>Teste grátis por 7 dias</li>
-              <li>Cancele a qualquer momento sem cobrança</li>
-              <li>Após o período de teste, será cobrado R$ {(planData.amount / 100).toFixed(2)}/mês</li>
-              <li>Você receberá um email de confirmação</li>
-            </ul>
-          </div>
-        </div>
-      )}
 
       {/* Botão de Submissão */}
       <button
@@ -177,13 +162,7 @@ export default function CheckoutForm({ planData }) {
             Processando...
           </>
         ) : (
-          <>
-            {planData?.trial ? (
-              <>🎁 Iniciar Teste Grátis de 7 Dias</>
-            ) : (
-              <>💳 Confirmar Pagamento - R$ {planData ? (planData.amount / 100).toFixed(2) : '0,00'}</>
-            )}
-          </>
+          <>💳 Confirmar pagamento - R$ {planData ? (planData.amount / 100).toFixed(2) : '0,00'}</>
         )}
       </button>
 

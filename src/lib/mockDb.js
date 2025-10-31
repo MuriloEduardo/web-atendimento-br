@@ -14,7 +14,8 @@ class MockDatabase {
     const user = {
       id: this.nextUserId++,
       ...userData,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      subscriptionActive: false
     };
     this.users.set(user.id, user);
     return user;
@@ -59,7 +60,27 @@ class MockDatabase {
 
   getSubscriptionByUserId(userId) {
     return Array.from(this.subscriptions.values()).find(
-      sub => sub.userId === userId && ['active', 'trialing'].includes(sub.status)
+      sub => sub.userId === userId
+    );
+  }
+
+  getSubscriptionByStripeId(stripeSubscriptionId) {
+    if (!stripeSubscriptionId) {
+      return null;
+    }
+
+    return Array.from(this.subscriptions.values()).find(
+      sub => sub.stripeSubscriptionId === stripeSubscriptionId
+    );
+  }
+
+  getUserByStripeCustomerId(stripeCustomerId) {
+    if (!stripeCustomerId) {
+      return null;
+    }
+
+    return Array.from(this.users.values()).find(
+      user => user.stripeCustomerId === stripeCustomerId
     );
   }
 
@@ -82,16 +103,16 @@ class MockDatabase {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return null;
     }
-    
+
     const token = authHeader.replace('Bearer ', '');
-    
+
     // Extrair ID do usuário do token mock
     const parts = token.split('_');
     if (parts.length >= 3 && parts[0] === 'mock' && parts[1] === 'token') {
       const userId = parseInt(parts[2]);
       return this.getUserById(userId);
     }
-    
+
     return null;
   }
 }

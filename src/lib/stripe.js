@@ -1,13 +1,10 @@
-// Não importar loadStripe diretamente para evitar carregamento automático
-// import { loadStripe } from '@stripe/stripe-js';
-
 // Inicializar Stripe com a chave pública
 let stripePromise;
 
 export const getStripe = async () => {
   // Verificar se temos uma chave pública válida
   const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-  
+
   if (!publishableKey || publishableKey === 'pk_test_sua_chave_publicavel_aqui') {
     console.warn('Stripe publishable key não configurada. Usando modo mock.');
     return null;

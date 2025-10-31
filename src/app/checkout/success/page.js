@@ -46,7 +46,7 @@ export default function CheckoutSuccess() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Verificando pagamento...</p>
+          <p className="mt-4">Verificando pagamento...</p>
         </div>
       </div>
     );
@@ -61,8 +61,8 @@ export default function CheckoutSuccess() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900">Erro na verificação</h2>
-          <p className="mt-2 text-gray-600">
+          <h2 className="mt-4 text-2xl font-bold">Erro na verificação</h2>
+          <p className="mt-2">
             Houve um problema ao verificar seu pagamento. Entre em contato conosco.
           </p>
           <button
@@ -88,11 +88,11 @@ export default function CheckoutSuccess() {
           </svg>
         </div>
         
-        <h2 className="mt-4 text-2xl font-bold text-gray-900">Pagamento Confirmado! 🎉</h2>
+        <h2 className="mt-4 text-2xl font-bold">Pagamento Confirmado! 🎉</h2>
         
         <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4">
           <p className="text-green-800 font-medium">
-            Seu teste grátis de 7 dias foi ativado com sucesso!
+            Sua assinatura foi confirmada com sucesso!
           </p>
           <p className="text-green-700 text-sm mt-2">
             Você receberá um email de confirmação em: {sessionData?.customerEmail}
@@ -111,7 +111,7 @@ export default function CheckoutSuccess() {
           </div>
         </div>
 
-        <p className="mt-6 text-sm text-gray-600">
+        <p className="mt-6 text-sm">
           Redirecionando para o dashboard em 3 segundos...
         </p>
         

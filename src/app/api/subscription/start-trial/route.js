@@ -53,7 +53,8 @@ export async function POST(request) {
     db.updateUser(userId, {
       subscriptionId: newSubscription.id,
       subscriptionStatus: 'trialing',
-      planId: planId
+      planId: planId,
+      subscriptionActive: false
     });
 
     return NextResponse.json({

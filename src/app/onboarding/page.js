@@ -43,8 +43,8 @@ const ONBOARDING_STEPS = [
   {
     id: 'subscription',
     title: 'Escolha seu Plano',
-    subtitle: '7 dias grátis para testar tudo',
-    description: 'Comece com nosso teste gratuito de 7 dias, depois escolha o plano ideal.',
+    subtitle: 'Finalize sua assinatura para liberar o acesso',
+    description: 'Selecione o plano ideal e conclua o pagamento para utilizar o Atendimento BR.',
     component: 'SubscriptionStep'
   }
 ];
@@ -55,7 +55,7 @@ const FAQ = ({ faqs, title = "Dúvidas frequentes" }) => {
 
   return (
     <div className="mt-8 border-t pt-6">
-      <h4 className="text-sm font-medium text-gray-900 mb-4">{title}</h4>
+      <h4 className="text-sm font-medium mb-4">{title}</h4>
       <div className="space-y-3">
         {faqs.map((faq, index) => (
           <div key={index} className="border border-gray-200 rounded-lg">
@@ -63,7 +63,7 @@ const FAQ = ({ faqs, title = "Dúvidas frequentes" }) => {
               onClick={() => setOpenFaq(openFaq === index ? null : index)}
               className="w-full px-4 py-3 text-left flex justify-between items-center hover:bg-gray-50"
             >
-              <span className="text-sm font-medium text-gray-700">{faq.question}</span>
+              <span className="text-sm font-medium">{faq.question}</span>
               <svg 
                 className={`h-4 w-4 text-gray-500 transition-transform ${openFaq === index ? 'rotate-180' : ''}`}
                 fill="none" 
@@ -75,7 +75,7 @@ const FAQ = ({ faqs, title = "Dúvidas frequentes" }) => {
             </button>
             {openFaq === index && (
               <div className="px-4 pb-3">
-                <p className="text-sm text-gray-600">{faq.answer}</p>
+                <p className="text-sm">{faq.answer}</p>
               </div>
             )}
           </div>
@@ -115,7 +115,7 @@ const WelcomeStep = ({ onNext }) => {
           </svg>
         </div>
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">
+          <h3 className="text-xl font-semibold">
             Vamos automatizar seu WhatsApp!
           </h3>
           <p className="text-gray-600 mt-2">
@@ -214,7 +214,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-6">
         <div>
-          <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="companyName" className="block text-sm font-medium mb-2">
             Nome da sua empresa *
           </label>
           <input
@@ -229,7 +229,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
         </div>
         
         <div>
-          <label htmlFor="businessType" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="businessType" className="block text-sm font-medium mb-2">
             Que tipo de negócio você tem? *
           </label>
           <select
@@ -247,7 +247,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
         </div>
         
         <div>
-          <label htmlFor="monthlyCustomers" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="monthlyCustomers" className="block text-sm font-medium mb-2">
             Quantos clientes você atende por mês no WhatsApp? *
           </label>
           <select
@@ -265,7 +265,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
         </div>
         
         <div>
-          <label htmlFor="currentWhatsApp" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="currentWhatsApp" className="block text-sm font-medium mb-2">
             Qual número você usa hoje para atendimento?
           </label>
           <input
@@ -282,7 +282,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
         </div>
         
         <div>
-          <label htmlFor="mainGoal" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="mainGoal" className="block text-sm font-medium mb-2">
             Qual seu principal objetivo? *
           </label>
           <select
@@ -304,7 +304,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
@@ -384,7 +384,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-6">
         <div>
-          <h4 className="text-lg font-medium text-gray-900 mb-4">
+          <h4 className="text-lg font-medium mb-4">
             Como você quer usar o WhatsApp?
           </h4>
           
@@ -401,12 +401,12 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                 />
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <span className="font-medium text-gray-900">Usar meu número atual</span>
+                    <span className="font-medium">Usar meu número atual</span>
                     <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
                       Limitações
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm mt-1">
                     Mantenho o número que meus clientes já conhecem
                   </p>
                   <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mt-3">
@@ -431,12 +431,12 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                 />
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <span className="font-medium text-gray-900">Quero um número novo</span>
+                    <span className="font-medium">Quero um número novo</span>
                     <span className="bg-lime-100 text-lime-800 text-xs px-2 py-1 rounded-full">
                       Recomendado
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm mt-1">
                     Número profissional com todas as funcionalidades oficiais
                   </p>
                   <div className="bg-lime-50 border border-lime-200 rounded-md p-3 mt-3">
@@ -453,7 +453,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
 
         {numberChoice === 'new' && (
           <div className="border-t pt-6">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">
+            <h4 className="text-lg font-medium mb-4">
               Como quer adquirir o número?
             </h4>
             
@@ -468,8 +468,8 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                   className="mt-1 text-green-600"
                 />
                 <div>
-                  <span className="font-medium text-gray-900">Vocês compram para mim</span>
-                  <p className="text-sm text-gray-600">
+                  <span className="font-medium">Vocês compram para mim</span>
+                  <p className="text-sm">
                     Nós cuidamos de tudo e incluímos o valor na sua fatura mensal. 
                     Mais prático e sem burocracia.
                   </p>
@@ -486,8 +486,8 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                   className="mt-1 text-green-600"
                 />
                 <div>
-                  <span className="font-medium text-gray-900">Eu mesmo compro</span>
-                  <p className="text-sm text-gray-600">
+                  <span className="font-medium">Eu mesmo compro</span>
+                  <p className="text-sm">
                     Você escolhe e compra o número diretamente com a operadora. 
                     Te ajudamos com todo o processo.
                   </p>
@@ -502,7 +502,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
@@ -593,7 +593,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
         </div>
 
         <div>
-          <h4 className="text-lg font-medium text-gray-900 mb-4">
+          <h4 className="text-lg font-medium mb-4">
             Você conhece o Meta Business (antigo Facebook Business)?
           </h4>
           
@@ -608,8 +608,8 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                 className="mt-1 text-green-600"
               />
               <div>
-                <span className="font-medium text-gray-900">Sim, eu uso para anúncios do Facebook/Instagram</span>
-                <p className="text-sm text-gray-600">Já tenho conta e sei como funciona</p>
+                <span className="font-medium">Sim, eu uso para anúncios do Facebook/Instagram</span>
+                <p className="text-sm">Já tenho conta e sei como funciona</p>
               </div>
             </label>
             
@@ -623,8 +623,8 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                 className="mt-1 text-green-600"
               />
               <div>
-                <span className="font-medium text-gray-900">Já ouvi falar, mas nunca usei</span>
-                <p className="text-sm text-gray-600">Sei que existe mas preciso de ajuda</p>
+                <span className="font-medium">Já ouvi falar, mas nunca usei</span>
+                <p className="text-sm">Sei que existe mas preciso de ajuda</p>
               </div>
             </label>
             
@@ -638,8 +638,8 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                 className="mt-1 text-green-600"
               />
               <div>
-                <span className="font-medium text-gray-900">Não, nunca ouvi falar</span>
-                <p className="text-sm text-gray-600">Preciso que vocês me expliquem tudo</p>
+                <span className="font-medium">Não, nunca ouvi falar</span>
+                <p className="text-sm">Preciso que vocês me expliquem tudo</p>
               </div>
             </label>
           </div>
@@ -647,7 +647,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
 
         {(metaBusinessInfo.knowsMetaBusiness === 'yes-use' || metaBusinessInfo.knowsMetaBusiness === 'yes-know') && (
           <div>
-            <h4 className="text-lg font-medium text-gray-900 mb-4">
+            <h4 className="text-lg font-medium mb-4">
               Quem cuida do Meta Business da sua empresa?
             </h4>
             
@@ -662,8 +662,8 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   className="mt-1 text-green-600"
                 />
                 <div>
-                  <span className="font-medium text-gray-900">Eu mesmo cuido</span>
-                  <p className="text-sm text-gray-600">Tenho acesso e sei mexer</p>
+                  <span className="font-medium">Eu mesmo cuido</span>
+                  <p className="text-sm">Tenho acesso e sei mexer</p>
                 </div>
               </label>
               
@@ -677,8 +677,8 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   className="mt-1 text-green-600"
                 />
                 <div>
-                  <span className="font-medium text-gray-900">Um funcionário da empresa</span>
-                  <p className="text-sm text-gray-600">Tenho alguém da equipe que mexe nisso</p>
+                  <span className="font-medium">Um funcionário da empresa</span>
+                  <p className="text-sm">Tenho alguém da equipe que mexe nisso</p>
                 </div>
               </label>
               
@@ -692,8 +692,8 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   className="mt-1 text-green-600"
                 />
                 <div>
-                  <span className="font-medium text-gray-900">Uma agência/freelancer</span>
-                  <p className="text-sm text-gray-600">Terceirizei essa parte</p>
+                  <span className="font-medium">Uma agência/freelancer</span>
+                  <p className="text-sm">Terceirizei essa parte</p>
                 </div>
               </label>
               
@@ -707,8 +707,8 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   className="mt-1 text-green-600"
                 />
                 <div>
-                  <span className="font-medium text-gray-900">Não tenho certeza</span>
-                  <p className="text-sm text-gray-600">Preciso verificar quem tem acesso</p>
+                  <span className="font-medium">Não tenho certeza</span>
+                  <p className="text-sm">Preciso verificar quem tem acesso</p>
                 </div>
               </label>
             </div>
@@ -732,7 +732,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
@@ -829,7 +829,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
           </svg>
         </div>
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">Parabéns! 🎉</h3>
+          <h3 className="text-xl font-semibold">Parabéns! 🎉</h3>
           <p className="text-gray-600 mt-2">
             Configuração concluída com sucesso!
           </p>
@@ -848,13 +848,13 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-6">
         <div>
-          <h4 className="text-lg font-medium text-gray-900 mb-4">
+          <h4 className="text-lg font-medium mb-4">
             Como quer que funcione o atendimento?
           </h4>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium mb-2">
                 Quando o robô deve responder?
               </label>
               <div className="space-y-2">
@@ -867,7 +867,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                     onChange={(e) => setAutomationConfig({ ...automationConfig, businessHours: e.target.value })}
                     className="text-green-600"
                   />
-                  <span className="ml-2 text-sm text-gray-700">24 horas por dia, 7 dias por semana</span>
+                  <span className="ml-2 text-sm">24 horas por dia, 7 dias por semana</span>
                 </label>
                 <label className="flex items-center">
                   <input
@@ -878,7 +878,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                     onChange={(e) => setAutomationConfig({ ...automationConfig, businessHours: e.target.value })}
                     className="text-green-600"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Apenas no horário comercial (configuraremos depois)</span>
+                  <span className="ml-2 text-sm">Apenas no horário comercial (configuraremos depois)</span>
                 </label>
               </div>
             </div>
@@ -886,7 +886,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
         </div>
 
         <div className="space-y-4">
-          <h4 className="text-lg font-medium text-gray-900">
+          <h4 className="text-lg font-medium">
             Funcionalidades que quer ativar:
           </h4>
           
@@ -899,8 +899,8 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 className="mt-1 text-green-600"
               />
               <div>
-                <span className="font-medium text-gray-900">Mensagem de boas-vindas</span>
-                <p className="text-sm text-gray-600">Cumprimentar automaticamente novos clientes</p>
+                <span className="font-medium">Mensagem de boas-vindas</span>
+                <p className="text-sm">Cumprimentar automaticamente novos clientes</p>
               </div>
             </label>
             
@@ -912,8 +912,8 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 className="mt-1 text-green-600"
               />
               <div>
-                <span className="font-medium text-gray-900">Respostas automáticas</span>
-                <p className="text-sm text-gray-600">Responder perguntas frequentes automaticamente</p>
+                <span className="font-medium">Respostas automáticas</span>
+                <p className="text-sm">Responder perguntas frequentes automaticamente</p>
               </div>
             </label>
             
@@ -925,8 +925,8 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 className="mt-1 text-green-600"
               />
               <div>
-                <span className="font-medium text-gray-900">Transferência para humano</span>
-                <p className="text-sm text-gray-600">Passar para atendente quando necessário</p>
+                <span className="font-medium">Transferência para humano</span>
+                <p className="text-sm">Passar para atendente quando necessário</p>
               </div>
             </label>
             
@@ -938,8 +938,8 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 className="mt-1 text-green-600"
               />
               <div>
-                <span className="font-medium text-gray-900">Notificações</span>
-                <p className="text-sm text-gray-600">Receber avisos de novas mensagens e transferências</p>
+                <span className="font-medium">Notificações</span>
+                <p className="text-sm">Receber avisos de novas mensagens e transferências</p>
               </div>
             </label>
           </div>
@@ -967,7 +967,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
@@ -1050,91 +1050,64 @@ const SubscriptionStep = ({ onNext, onBack }) => {
     setSelectedPlan(planId);
   };
 
-  const handleStartTrial = async () => {
-    let shouldResetLoading = true;
+  const handleConfirmPlan = async () => {
+    if (!selectedPlan) {
+      alert('Selecione um plano para continuar.');
+      return;
+    }
+
     setIsLoading(true);
-    
+
     try {
-      console.log('[SubscriptionStep] handleStartTrial:start', { stripeEnabled, selectedPlan });
-      // Verificar se Stripe está habilitado
-  if (!stripeEnabled) {
-        // OPÇÃO 1: Trial gratuito sem cartão (modo mock)
-        const response = await fetch('/api/subscription/start-trial', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
-          body: JSON.stringify({
-            planId: selectedPlan
-          })
-        });
-
-        if (response.ok) {
-          console.log('[SubscriptionStep] start-trial success (mock)');
-          onNext();
-        } else {
-          console.error('[SubscriptionStep] start-trial failed (mock)', response.status);
-          throw new Error('Erro ao iniciar teste');
-        }
-      } else {
-        // OPÇÃO 2: Redirecionar para página de pagamento com Stripe
-        const token = localStorage.getItem('token');
-
-        console.log('[SubscriptionStep] Stripe ativo, preparando redirect', { tokenPresent: Boolean(token) });
-
-        if (!token) {
-          router.push('/login');
-          shouldResetLoading = false;
-          return;
-        }
-
-        console.log('[SubscriptionStep] redirecting to payment', { planId: selectedPlan });
-        router.push(`/payment/${selectedPlan}`);
-        shouldResetLoading = false;
+      if (!stripeEnabled) {
+        alert('Configure a integração com a Stripe para concluir sua assinatura.');
         return;
       }
 
-    } catch (error) {
-      console.error('Erro ao iniciar trial:', error);
-      alert('Erro ao iniciar teste. Tente novamente.');
-    } finally {
-      if (shouldResetLoading) {
-        setIsLoading(false);
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        router.push('/login');
+        return;
       }
+
+      router.push(`/payment/${selectedPlan}`);
+    } catch (error) {
+      console.error('Erro ao confirmar plano:', error);
+      alert('Não foi possível redirecionar para o pagamento. Tente novamente.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const faqs = [
     {
-      question: "Como funciona o teste grátis de 7 dias?",
-      answer: "Você tem acesso completo a todas as funcionalidades do plano escolhido por 7 dias. Não cobramos nada neste período e você pode cancelar a qualquer momento."
+      question: 'Quando a cobrança é realizada?',
+      answer: 'O pagamento é processado imediatamente após você confirmar o plano. A assinatura só é liberada após a aprovação da Stripe.'
     },
     {
-      question: "Preciso cadastrar cartão de crédito?",
-      answer: stripeEnabled 
-        ? "Sim, pedimos um cartão para garantir continuidade após o período de teste, mas só cobramos após os 7 dias se você não cancelar."
-        : "Não! Nosso teste é completamente gratuito, sem necessidade de cartão de crédito. Você pode testar todas as funcionalidades sem compromisso."
+      question: 'Posso mudar de plano depois?',
+      answer: 'Sim! Você pode alterar seu plano pelo dashboard quando quiser. A mudança entra em vigor no próximo ciclo de cobrança.'
     },
     {
-      question: "Posso mudar de plano depois?",
-      answer: "Sim! Você pode mudar seu plano a qualquer momento através do dashboard. As mudanças são aplicadas no próximo ciclo."
+      question: 'E se eu quiser cancelar?',
+      answer: 'Você pode cancelar a assinatura a qualquer momento diretamente pelo painel. Não há multa ou taxa de cancelamento.'
     },
     {
-      question: "E se eu quiser cancelar?",
-      answer: "Sem problemas! Cancele a qualquer momento sem taxa de cancelamento. Seus dados ficam seguros por 30 dias caso queira reativar."
+      question: 'Quais formas de pagamento são aceitas?',
+      answer: 'Aceitamos cartões de crédito das principais bandeiras. O processamento é feito de forma segura pela Stripe.'
     }
   ];
 
   return (
     <div className="space-y-8">
-      {/* Badge de teste grátis */}
+      {/* Badge de destaque */}
       <div className="text-center">
         <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 border border-green-200">
           <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span className="text-green-800 font-medium">7 dias grátis • Sem compromisso</span>
+          <span className="text-green-800 font-medium">Pagamento mensal • Cancele quando quiser</span>
         </div>
       </div>
 
@@ -1160,15 +1133,15 @@ const SubscriptionStep = ({ onNext, onBack }) => {
             )}
 
             <div className="text-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">{plan.name}</h3>
+              <h3 className="text-lg font-semibold">{plan.name}</h3>
               <p className="text-gray-600 text-sm">{plan.description}</p>
             </div>
 
             <div className="text-center mb-6">
-              <span className="text-3xl font-bold text-gray-900">{plan.price}</span>
+              <span className="text-3xl font-bold">{plan.price}</span>
               <span className="text-gray-600">{plan.period}</span>
               <div className="text-sm text-green-600 font-medium mt-1">
-                Primeiro mês: <span className="line-through text-gray-400">{plan.price}</span> GRÁTIS
+                Cobrança recorrente e segura pela Stripe
               </div>
             </div>
 
@@ -1207,12 +1180,12 @@ const SubscriptionStep = ({ onNext, onBack }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <h4 className="font-medium text-blue-900">Garantias do seu teste grátis:</h4>
+            <h4 className="font-medium text-blue-900">Por que assinar agora?</h4>
             <ul className="text-sm text-blue-800 mt-2 space-y-1">
-              <li>• 7 dias completamente grátis</li>
-              <li>• Cancele a qualquer momento sem custo</li>
-              <li>• Suporte gratuito durante o teste</li>
-              <li>• Sem taxas de configuração</li>
+              <li>• Pagamento 100% seguro com a Stripe</li>
+              <li>• Cancelamento simples sempre que precisar</li>
+              <li>• Suporte dedicado durante a implantação</li>
+              <li>• Nota fiscal disponível mediante solicitação</li>
             </ul>
           </div>
         </div>
@@ -1223,23 +1196,23 @@ const SubscriptionStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
         <button
-          onClick={handleStartTrial}
+          onClick={handleConfirmPlan}
           disabled={isLoading}
           className="flex-1 flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
           style={{ backgroundColor: '#25d366' }}
           onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
           onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
         >
-          {isLoading ? 'Iniciando teste...' : 'Começar teste grátis de 7 dias 🚀'}
+          {isLoading ? 'Redirecionando...' : 'Confirmar assinatura e pagar 🚀'}
         </button>
       </div>
       
-      <FAQ faqs={faqs} title="Dúvidas sobre planos e teste grátis" />
+  <FAQ faqs={faqs} title="Dúvidas sobre planos e pagamento" />
     </div>
   );
 };
@@ -1316,17 +1289,35 @@ export default function Onboarding() {
   const completeOnboarding = async () => {
     try {
       // Marcar onboarding como completo
-      await fetch('/api/onboarding/complete', {
+      const response = await fetch('/api/onboarding/complete', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          router.push('/login');
+          return;
+        }
+
+        if (response.status === 409) {
+          const data = await response.json().catch(() => ({}));
+          alert(data.error || 'Finalize o pagamento da sua assinatura para continuar.');
+          router.push('/onboarding?step=subscription');
+          return;
+        }
+
+        throw new Error('Falha ao concluir onboarding');
+      }
+
       // Redirecionar para dashboard
       router.push('/dashboard');
     } catch (error) {
       console.error('Erro ao completar onboarding:', error);
+      alert('Não foi possível concluir o onboarding no momento. Tente novamente após alguns instantes.');
     }
   };
 
@@ -1362,8 +1353,8 @@ export default function Onboarding() {
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Configuração da conta</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-2xl font-bold">Configuração da conta</h1>
+          <p className="mt-2 text-sm">
             Passo {currentStep + 1} de {ONBOARDING_STEPS.length}
           </p>
         </div>
@@ -1379,9 +1370,9 @@ export default function Onboarding() {
         </div>
 
         {/* Step content */}
-        <div className="bg-white rounded-lg shadow px-6 py-8">
+        <div className="bg-white text-gray-700 rounded-lg shadow px-6 py-8">
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-1">
+            <h2 className="text-xl font-semibold mb-1">
               {currentStepData.title}
             </h2>
             {currentStepData.subtitle && (
@@ -1389,22 +1380,12 @@ export default function Onboarding() {
                 {currentStepData.subtitle}
               </p>
             )}
-            <p className="text-sm text-gray-600">
+            <p className="text-sm">
               {currentStepData.description}
             </p>
           </div>
           
           {renderStepComponent()}
-        </div>
-
-        {/* Skip option */}
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            Pular por agora (continuar mais tarde)
-          </button>
         </div>
       </div>
     </div>

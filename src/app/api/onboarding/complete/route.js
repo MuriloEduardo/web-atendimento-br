@@ -13,6 +13,13 @@ export async function POST(request) {
       );
     }
 
+    if (!user.subscriptionActive) {
+      return NextResponse.json(
+        { error: 'Finalize sua assinatura para acessar o dashboard.' },
+        { status: 409 }
+      );
+    }
+
     // Completar onboarding
     db.updateUser(user.id, {
       onboardingCompleted: true,

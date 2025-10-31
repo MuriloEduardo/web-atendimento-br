@@ -11,6 +11,8 @@ export default function PaymentSuccessComponent() {
   const [status, setStatus] = useState('loading');
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [completionSent, setCompletionSent] = useState(false);
+  const [activationStatus, setActivationStatus] = useState('idle');
+  const [activationError, setActivationError] = useState('');
 
   useEffect(() => {
     if (!stripe) return;
@@ -30,6 +32,7 @@ export default function PaymentSuccessComponent() {
         case 'succeeded':
           setStatus('succeeded');
           setPaymentDetails(paymentIntent);
+          setActivationStatus('idle');
           break;
         case 'processing':
           setStatus('processing');
@@ -45,7 +48,54 @@ export default function PaymentSuccessComponent() {
   }, [stripe, searchParams]);
 
   useEffect(() => {
-    if (status !== 'succeeded' || completionSent) {
+    if (status !== 'succeeded' || !paymentDetails) {
+      return;
+    }
+
+    if (activationStatus !== 'idle') {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setActivationError('Sua sessão expirou. Faça login novamente para concluir a ativação.');
+      setActivationStatus('error');
+      return;
+    }
+
+    const activateSubscription = async () => {
+      try {
+        setActivationStatus('pending');
+        setActivationError('');
+
+        const response = await fetch('/api/subscription/activate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ paymentIntentId: paymentDetails.id })
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.error || 'Não foi possível ativar sua assinatura');
+        }
+
+        setActivationStatus('success');
+      } catch (error) {
+        console.error('Erro ao ativar assinatura:', error);
+        setActivationError(error.message || 'Erro ao ativar sua assinatura.');
+        setActivationStatus('error');
+      }
+    };
+
+    activateSubscription();
+  }, [status, paymentDetails, activationStatus]);
+
+  useEffect(() => {
+    if (status !== 'succeeded' || completionSent || activationStatus !== 'success') {
       if (status === 'succeeded' && completionSent) {
         console.log('[PaymentSuccess] onboarding completion already sent');
       }
@@ -79,10 +129,17 @@ export default function PaymentSuccessComponent() {
     };
 
     completeOnboarding();
-  }, [status, completionSent]);
+  }, [status, completionSent, activationStatus]);
 
   const redirectToDashboard = () => {
     router.push('/dashboard');
+  };
+
+  const retryActivation = () => {
+    if (activationStatus === 'error') {
+      setActivationError('');
+      setActivationStatus('idle');
+    }
   };
 
   if (status === 'loading') {
@@ -90,7 +147,7 @@ export default function PaymentSuccessComponent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold mb-2">
             Verificando Pagamento...
           </h2>
           <p className="text-gray-600">
@@ -106,7 +163,7 @@ export default function PaymentSuccessComponent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
           <div className="text-yellow-500 text-6xl mb-4">⏳</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold mb-2">
             Pagamento em Processamento
           </h2>
           <p className="text-gray-600 mb-6">
@@ -128,7 +185,7 @@ export default function PaymentSuccessComponent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
           <div className="text-red-500 text-6xl mb-4">❌</div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+          <h2 className="text-xl font-semibold mb-2">
             Erro no Pagamento
           </h2>
           <p className="text-gray-600 mb-6">
@@ -143,7 +200,7 @@ export default function PaymentSuccessComponent() {
             </button>
             <button
               onClick={redirectToDashboard}
-              className="w-full bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
+              className="w-full bg-gray-300 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors"
             >
               Voltar ao Dashboard
             </button>
@@ -158,11 +215,13 @@ export default function PaymentSuccessComponent() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
         <div className="text-green-500 text-6xl mb-4">✅</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold mb-2">
           Pagamento Confirmado!
         </h2>
         <p className="text-gray-600 mb-6">
-          Sua assinatura foi ativada com sucesso. Bem-vindo ao AtendimentoBR!
+          {activationStatus === 'success'
+            ? 'Sua assinatura foi ativada com sucesso. Bem-vindo ao AtendimentoBR!'
+            : 'Pagamento confirmado. Estamos finalizando a ativação da sua assinatura.'}
         </p>
 
         {paymentDetails && (
@@ -173,6 +232,25 @@ export default function PaymentSuccessComponent() {
               <p><strong>Valor:</strong> R$ {(paymentDetails.amount / 100).toFixed(2)}</p>
               <p><strong>Status:</strong> Confirmado</p>
             </div>
+          </div>
+        )}
+
+        {activationStatus === 'pending' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-sm text-blue-800">
+            Estamos finalizando a ativação da sua conta. Isso leva apenas alguns instantes...
+          </div>
+        )}
+
+        {activationStatus === 'error' && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-sm text-red-700">
+            <p className="font-medium mb-2">Não foi possível ativar sua assinatura automaticamente.</p>
+            <p className="mb-3">{activationError}</p>
+            <button
+              onClick={retryActivation}
+              className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+            >
+              Tentar ativar novamente
+            </button>
           </div>
         )}
 
@@ -190,8 +268,8 @@ export default function PaymentSuccessComponent() {
 
         {/* Próximos passos */}
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <h3 className="font-medium text-gray-900 mb-3">Próximos Passos:</h3>
-          <div className="text-left space-y-2 text-sm text-gray-600">
+          <h3 className="font-medium mb-3">Próximos Passos:</h3>
+          <div className="text-left space-y-2 text-sm">
             <div className="flex items-center">
               <span className="text-green-500 mr-2">1.</span>
               Configure sua primeira automação

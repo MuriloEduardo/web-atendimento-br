@@ -9,7 +9,7 @@ export const PLANS = {
   },
   professional: {
     id: 'professional',
-    name: 'Professional', 
+    name: 'Professional',
     price: 19700, // em centavos (R$ 197,00)
     currency: 'brl',
     features: ['5000_messages', 'advanced_chatbot', 'crm_integration', 'priority_support', 'advanced_reports', 'multiple_numbers', 'custom_api']

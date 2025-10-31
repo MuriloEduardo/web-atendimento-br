@@ -13,19 +13,19 @@ const PLAN_DETAILS = {
   starter: {
     planName: 'Starter',
     amount: 9700,
-    trial: true,
+    trial: false,
     description: 'Perfeito para pequenos negócios',
   },
   professional: {
     planName: 'Professional',
     amount: 19700,
-    trial: true,
+    trial: false,
     description: 'Ideal para empresas em crescimento',
   },
   enterprise: {
     planName: 'Enterprise',
     amount: 39700,
-    trial: true,
+    trial: false,
     description: 'Solução completa para grandes empresas',
   },
 };
@@ -118,20 +118,37 @@ export default function PaymentPageComponent({ params: initialParams }) {
           if (statusResponse.ok) {
             const statusData = await statusResponse.json();
             console.log('[PaymentPage] subscriptionStatus', statusData);
-            if (statusData.hasSubscription && ['active', 'trialing'].includes(statusData.subscription?.status)) {
-              if (cancelled) return;
-              setHasSubscription(true);
-              setSubscription(statusData.subscription);
-              setPlanData((prev) => ({
-                ...(prev || {}),
-                planName: statusData.subscription?.planName || prev?.planName,
-                amount: statusData.subscription?.price ?? prev?.amount,
-                trial: statusData.subscription?.status === 'trialing',
-                subscriptionStatus: statusData.subscription?.status
-              }));
-              setInfoMessage('Você já possui uma assinatura ativa. Não é necessário realizar um novo pagamento agora.');
-              setLoading(false);
-              return;
+
+            if (statusData.hasSubscription) {
+              const currentStatus = statusData.subscription?.status;
+
+              if (currentStatus === 'active') {
+                if (cancelled) return;
+                setHasSubscription(true);
+                setSubscription(statusData.subscription);
+                setPlanData((prev) => ({
+                  ...(prev || {}),
+                  planName: statusData.subscription?.planName || prev?.planName,
+                  amount: statusData.subscription?.price ?? prev?.amount,
+                  trial: false,
+                  subscriptionStatus: currentStatus
+                }));
+                setInfoMessage('Você já possui uma assinatura ativa. Não é necessário realizar um novo pagamento agora.');
+                setLoading(false);
+                return;
+              }
+
+              if (currentStatus === 'trialing') {
+                setSubscription(statusData.subscription);
+                setPlanData((prev) => ({
+                  ...(prev || {}),
+                  planName: statusData.subscription?.planName || prev?.planName,
+                  amount: statusData.subscription?.price ?? prev?.amount,
+                  trial: false,
+                  subscriptionStatus: currentStatus
+                }));
+                setInfoMessage('Identificamos um pagamento pendente. Conclua o pagamento abaixo para ativar sua assinatura definitivamente.');
+              }
             }
           } else {
             console.warn('[PaymentPage] subscription status response not ok', statusResponse.status);
@@ -148,7 +165,7 @@ export default function PaymentPageComponent({ params: initialParams }) {
           },
           body: JSON.stringify({
             planId: planId,
-            trial: true
+            trial: false
           })
         });
 
@@ -240,11 +257,11 @@ export default function PaymentPageComponent({ params: initialParams }) {
             <div className="flex items-center">
               <button
                 onClick={() => router.back()}
-                className="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="mr-4 p-2 hover:bg-gray-100 text-gray-500 rounded-lg transition-colors"
               >
                 ←
               </button>
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-xl text-gray-500 font-semibold">
                 Finalizar Assinatura
               </h1>
             </div>
@@ -259,8 +276,8 @@ export default function PaymentPageComponent({ params: initialParams }) {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Resumo do Plano */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-white text-gray-700 rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">
               Resumo do Pedido
             </h2>
             
@@ -285,16 +302,16 @@ export default function PaymentPageComponent({ params: initialParams }) {
 
                 <div className="flex justify-between items-center p-4 bg-white border border-green-100 rounded-lg">
                   <div>
-                    <h4 className="font-medium text-gray-900">
+                    <h4 className="font-medium">
                       Valor da assinatura
                     </h4>
-                    <p className="text-sm text-gray-600">Cobrado mensalmente</p>
+                    <p className="text-sm">Cobrado mensalmente</p>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold text-gray-900">
+                    <div className="font-semibold">
                       R$ {((subscription.price ?? planData?.amount ?? 0) / 100).toFixed(2)}
                     </div>
-                    <div className="text-sm text-gray-600">/mês</div>
+                    <div className="text-sm">/mês</div>
                   </div>
                 </div>
               </div>
@@ -302,44 +319,28 @@ export default function PaymentPageComponent({ params: initialParams }) {
               <div className="space-y-4">
                 <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg border border-green-200">
                   <div>
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium">
                       Plano {planData.planName}
                     </h3>
-                    <p className="text-sm text-gray-600">
-                      {planData.trial ? '7 dias grátis, depois' : 'Cobrança mensal'}
+                    <p className="text-sm">
+                      Cobrança mensal
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="font-semibold text-gray-900">
+                    <div className="font-semibold">
                       R$ {((planData.amount ?? 0) / 100).toFixed(2)}
                     </div>
-                    <div className="text-sm text-gray-600">/mês</div>
+                    <div className="text-sm">/mês</div>
                   </div>
                 </div>
 
-                {planData.trial && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <div className="text-blue-500 mr-2">🎁</div>
-                      <div>
-                        <h4 className="font-medium text-blue-900">
-                          Teste Grátis de 7 Dias
-                        </h4>
-                        <p className="text-sm text-blue-700">
-                          Cancele a qualquer momento antes do fim do período de teste
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex justify-between items-center">
-                    <span className="font-medium text-gray-900">
-                      {planData.trial ? 'Total hoje:' : 'Total:'}
+                    <span className="font-medium">
+                      Total:
                     </span>
                     <span className="font-semibold text-xl text-green-600">
-                      {planData.trial ? 'R$ 0,00' : `R$ ${((planData.amount ?? 0) / 100).toFixed(2)}`}
+                      R$ {((planData.amount ?? 0) / 100).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -352,8 +353,8 @@ export default function PaymentPageComponent({ params: initialParams }) {
           </div>
 
           {/* Formulário de Pagamento */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-white text-gray-700 rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">
               Informações de Pagamento
             </h2>
             

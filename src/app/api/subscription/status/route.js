@@ -16,7 +16,7 @@ export async function GET(request) {
     // Buscar assinatura do usuário
     const subscription = db.getSubscriptionByUserId(userId);
 
-    if (!subscription) {
+    if (!subscription || subscription.status === 'canceled') {
       return NextResponse.json({
         hasSubscription: false,
         status: 'none',
@@ -43,6 +43,7 @@ export async function GET(request) {
 
     return NextResponse.json({
       hasSubscription: true,
+      subscriptionActive: Boolean(user.subscriptionActive),
       subscription: {
         id: subscription.id,
         status: subscription.status,

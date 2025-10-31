@@ -111,12 +111,16 @@ async function handleCheckoutSessionCompleted(session) {
 }
 
 async function handleSubscriptionCreated(subscription) {
-  const userId = parseInt(subscription.metadata.userId);
-  
-  console.log('Assinatura criada:', { userId, subscriptionId: subscription.id });
+  const metadataUserId = subscription.metadata?.userId ? parseInt(subscription.metadata.userId, 10) : null;
 
-  // Atualizar assinatura local com dados do Stripe
-  const localSubscription = db.getSubscriptionByUserId(userId);
+  console.log('Assinatura criada:', { metadataUserId, subscriptionId: subscription.id });
+
+  let localSubscription = db.getSubscriptionByStripeId(subscription.id);
+
+  if (!localSubscription && metadataUserId) {
+    localSubscription = db.getSubscriptionByUserId(metadataUserId);
+  }
+
   if (localSubscription) {
     db.updateSubscription(localSubscription.id, {
       stripeSubscriptionId: subscription.id,
@@ -125,43 +129,67 @@ async function handleSubscriptionCreated(subscription) {
       currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
     });
   }
+
+  const userId = localSubscription?.userId || metadataUserId;
+
+  if (userId) {
+    db.updateUser(userId, {
+      subscriptionStatus: subscription.status,
+      subscriptionActive: subscription.status === 'active'
+    });
+  }
 }
 
 async function handleSubscriptionUpdated(subscription) {
-  const userId = parseInt(subscription.metadata.userId);
-  
-  console.log('Assinatura atualizada:', { userId, status: subscription.status });
+  const metadataUserId = subscription.metadata?.userId ? parseInt(subscription.metadata.userId, 10) : null;
 
-  const localSubscription = db.getSubscriptionByUserId(userId);
+  console.log('Assinatura atualizada:', { metadataUserId, status: subscription.status });
+
+  let localSubscription = db.getSubscriptionByStripeId(subscription.id);
+
+  if (!localSubscription && metadataUserId) {
+    localSubscription = db.getSubscriptionByUserId(metadataUserId);
+  }
+
   if (localSubscription) {
     db.updateSubscription(localSubscription.id, {
       status: subscription.status,
       currentPeriodStart: new Date(subscription.current_period_start * 1000).toISOString(),
       currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString()
     });
+  }
 
-    // Atualizar status do usuário
+  const userId = localSubscription?.userId || metadataUserId;
+
+  if (userId) {
     db.updateUser(userId, {
-      subscriptionStatus: subscription.status
+      subscriptionStatus: subscription.status,
+      subscriptionActive: subscription.status === 'active'
     });
   }
 }
 
 async function handleSubscriptionDeleted(subscription) {
-  const userId = parseInt(subscription.metadata.userId);
-  
-  console.log('Assinatura cancelada:', { userId });
+  const metadataUserId = subscription.metadata?.userId ? parseInt(subscription.metadata.userId, 10) : null;
 
-  const localSubscription = db.getSubscriptionByUserId(userId);
+  console.log('Assinatura cancelada:', { metadataUserId });
+
+  let localSubscription = db.getSubscriptionByStripeId(subscription.id);
+
+  if (!localSubscription && metadataUserId) {
+    localSubscription = db.getSubscriptionByUserId(metadataUserId);
+  }
+
   if (localSubscription) {
     db.updateSubscription(localSubscription.id, {
       status: 'canceled',
       canceledAt: new Date().toISOString()
     });
 
-    // Atualizar status do usuário
+    const userId = localSubscription.userId;
     db.updateUser(userId, {
-      subscriptionStatus: 'canceled'
+      subscriptionStatus: 'canceled',
+      subscriptionActive: false
     });
   }
 }
@@ -172,10 +200,28 @@ async function handlePaymentSucceeded(invoice) {
     amount: invoice.amount_paid / 100 
   });
   
-  // Aqui você pode adicionar lógica para:
-  // - Enviar email de confirmação
-  // - Ativar funcionalidades premium
-  // - Atualizar limites de uso
+  const subscriptionId = invoice.subscription;
+  const localSubscription = db.getSubscriptionByStripeId(subscriptionId);
+  const userFromSubscription = localSubscription ? db.getUserById(localSubscription.userId) : null;
+  const userFromCustomer = db.getUserByStripeCustomerId(invoice.customer);
+  const targetUser = userFromSubscription || userFromCustomer;
+
+  if (localSubscription) {
+    const period = invoice.lines?.data?.[0]?.period;
+    db.updateSubscription(localSubscription.id, {
+      status: 'active',
+      lastPaymentAt: new Date().toISOString(),
+      currentPeriodEnd: period?.end ? new Date(period.end * 1000).toISOString() : localSubscription.currentPeriodEnd,
+      currentPeriodStart: period?.start ? new Date(period.start * 1000).toISOString() : localSubscription.currentPeriodStart
+    });
+  }
+
+  if (targetUser) {
+    db.updateUser(targetUser.id, {
+      subscriptionStatus: 'active',
+      subscriptionActive: true
+    });
+  }
 }
 
 async function handlePaymentFailed(invoice) {
@@ -184,8 +230,23 @@ async function handlePaymentFailed(invoice) {
     amount: invoice.amount_due / 100 
   });
   
-  // Aqui você pode adicionar lógica para:
-  // - Enviar email de cobrança
-  // - Suspender funcionalidades premium
-  // - Notificar o usuário
+  const subscriptionId = invoice.subscription;
+  const localSubscription = db.getSubscriptionByStripeId(subscriptionId);
+  const userFromSubscription = localSubscription ? db.getUserById(localSubscription.userId) : null;
+  const userFromCustomer = db.getUserByStripeCustomerId(invoice.customer);
+  const targetUser = userFromSubscription || userFromCustomer;
+
+  if (localSubscription) {
+    db.updateSubscription(localSubscription.id, {
+      status: 'past_due',
+      lastPaymentAttemptAt: new Date().toISOString()
+    });
+  }
+
+  if (targetUser) {
+    db.updateUser(targetUser.id, {
+      subscriptionStatus: 'past_due',
+      subscriptionActive: false
+    });
+  }
 }

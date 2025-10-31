@@ -1,18 +1,37 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import db from '@/lib/mockDb';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2022-11-15',
-});
+// Verificar se Stripe está configurado
+const isStripeConfigured = () => {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  return secretKey && !secretKey.startsWith('sk_test_sua_chave');
+};
+
+// Inicializar Stripe dinamicamente apenas quando configurado
+const getStripeInstance = async () => {
+  if (!isStripeConfigured()) {
+    throw new Error('Stripe não configurado');
+  }
+  
+  const Stripe = (await import('stripe')).default;
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2022-11-15',
+  });
+};
 
 export async function POST(request) {
+  // Verificar se Stripe está configurado
+  if (!isStripeConfigured()) {
+    return NextResponse.json({ error: 'Stripe não configurado. Use o modo mock.' }, { status: 400 });
+  }
+
   const body = await request.text();
   const sig = request.headers.get('stripe-signature');
 
   let event;
 
   try {
+    const stripe = await getStripeInstance();
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     console.error('Erro na verificação do webhook:', err.message);

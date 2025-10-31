@@ -1,15 +1,32 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import db from '@/lib/mockDb';
 import { PLANS } from '@/lib/plans';
 
-// Inicializar Stripe com chave secreta
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2022-11-15',
-});
+// Verificar se Stripe está configurado
+const isStripeConfigured = () => {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  return secretKey && !secretKey.startsWith('sk_test_sua_chave');
+};
+
+// Inicializar Stripe dinamicamente apenas quando configurado
+const getStripeInstance = async () => {
+  if (!isStripeConfigured()) {
+    throw new Error('Stripe não configurado');
+  }
+  
+  const Stripe = (await import('stripe')).default;
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2022-11-15',
+  });
+};
 
 export async function POST(request) {
   try {
+    // Verificar se Stripe está configurado
+    if (!isStripeConfigured()) {
+      return NextResponse.json({ error: 'Stripe não configurado. Use o modo mock.' }, { status: 400 });
+    }
+
     // Verificar token de autenticação
     const authHeader = request.headers.get('authorization');
     const user = db.getUserFromToken(authHeader);
@@ -26,6 +43,9 @@ export async function POST(request) {
     }
 
     const plan = PLANS[planId];
+
+    // Obter instância do Stripe
+    const stripe = await getStripeInstance();
 
     // Criar sessão de checkout do Stripe
     const session = await stripe.checkout.sessions.create({

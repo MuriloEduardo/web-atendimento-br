@@ -266,7 +266,7 @@ export default function Dashboard() {
                   <div className="text-center py-4">
                     <p className="text-gray-600 mb-4">Você não possui uma assinatura ativa.</p>
                     <button
-                      onClick={() => router.push('/onboarding')}
+                      onClick={() => router.push('/onboarding?step=subscription')}
                       className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                       style={{ backgroundColor: '#25d366' }}
                       onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { getStripe } from '@/lib/stripe';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { isStripeEnabled } from '@/lib/stripe';
 
 const ONBOARDING_STEPS = [
   {
@@ -986,8 +986,13 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
 
 // Componente de assinatura com Stripe
 const SubscriptionStep = ({ onNext, onBack }) => {
+  const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState('starter');
   const [isLoading, setIsLoading] = useState(false);
+  const stripeEnabled = isStripeEnabled();
+  if (typeof window !== 'undefined') {
+    console.log('[SubscriptionStep] render', { stripeEnabled, selectedPlan });
+  }
 
   const plans = [
     {
@@ -1046,62 +1051,57 @@ const SubscriptionStep = ({ onNext, onBack }) => {
   };
 
   const handleStartTrial = async () => {
+    let shouldResetLoading = true;
     setIsLoading(true);
     
     try {
-      // OPÇÃO 1: Trial gratuito sem cartão (implementado atualmente)
-      const response = await fetch('/api/subscription/start-trial', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          planId: selectedPlan
-        })
-      });
+      console.log('[SubscriptionStep] handleStartTrial:start', { stripeEnabled, selectedPlan });
+      // Verificar se Stripe está habilitado
+  if (!stripeEnabled) {
+        // OPÇÃO 1: Trial gratuito sem cartão (modo mock)
+        const response = await fetch('/api/subscription/start-trial', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            planId: selectedPlan
+          })
+        });
 
-      if (response.ok) {
-        onNext();
+        if (response.ok) {
+          console.log('[SubscriptionStep] start-trial success (mock)');
+          onNext();
+        } else {
+          console.error('[SubscriptionStep] start-trial failed (mock)', response.status);
+          throw new Error('Erro ao iniciar teste');
+        }
       } else {
-        throw new Error('Erro ao iniciar teste');
+        // OPÇÃO 2: Redirecionar para página de pagamento com Stripe
+        const token = localStorage.getItem('token');
+
+        console.log('[SubscriptionStep] Stripe ativo, preparando redirect', { tokenPresent: Boolean(token) });
+
+        if (!token) {
+          router.push('/login');
+          shouldResetLoading = false;
+          return;
+        }
+
+        console.log('[SubscriptionStep] redirecting to payment', { planId: selectedPlan });
+        router.push(`/payment/${selectedPlan}`);
+        shouldResetLoading = false;
+        return;
       }
-
-      // OPÇÃO 2: Trial com cartão (Stripe real)
-      // Descomente o código abaixo para usar Stripe real
-      /*
-      const stripe = await getStripe();
-      
-      // Criar checkout session no backend
-      const checkoutResponse = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          planId: selectedPlan,
-          trial: true
-        })
-      });
-
-      const { sessionId } = await checkoutResponse.json();
-
-      // Redirecionar para checkout do Stripe
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: sessionId
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-      */
 
     } catch (error) {
       console.error('Erro ao iniciar trial:', error);
       alert('Erro ao iniciar teste. Tente novamente.');
     } finally {
-      setIsLoading(false);
+      if (shouldResetLoading) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -1112,7 +1112,9 @@ const SubscriptionStep = ({ onNext, onBack }) => {
     },
     {
       question: "Preciso cadastrar cartão de crédito?",
-      answer: "Sim, pedimos um cartão para garantir continuidade após o período de teste, mas só cobramos após os 7 dias se você não cancelar."
+      answer: stripeEnabled 
+        ? "Sim, pedimos um cartão para garantir continuidade após o período de teste, mas só cobramos após os 7 dias se você não cancelar."
+        : "Não! Nosso teste é completamente gratuito, sem necessidade de cartão de crédito. Você pode testar todas as funcionalidades sem compromisso."
     },
     {
       question: "Posso mudar de plano depois?",
@@ -1139,14 +1141,15 @@ const SubscriptionStep = ({ onNext, onBack }) => {
       {/* Grid de planos */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {plans.map((plan) => (
-          <div
+          <button
             key={plan.id}
-            className={`relative border-2 rounded-lg p-6 cursor-pointer transition-all ${
+            type="button"
+            onClick={() => handlePlanSelect(plan.id)}
+            className={`relative text-left border-2 rounded-lg p-6 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500 ${
               selectedPlan === plan.id
                 ? 'border-green-500 bg-green-50'
                 : 'border-gray-200 hover:border-gray-300'
             } ${plan.recommended ? 'ring-2 ring-green-500' : ''}`}
-            onClick={() => handlePlanSelect(plan.id)}
           >
             {plan.recommended && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -1193,7 +1196,7 @@ const SubscriptionStep = ({ onNext, onBack }) => {
                 )}
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -1245,6 +1248,12 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const forcedStepId = searchParams.get('step');
+  const forcedStepIndex = forcedStepId
+    ? ONBOARDING_STEPS.findIndex((step) => step.id === forcedStepId)
+    : -1;
+  const hasForcedStep = forcedStepIndex >= 0;
 
   useEffect(() => {
     // Verificar se usuário está logado
@@ -1262,8 +1271,21 @@ export default function Onboarding() {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
+
+        if (response.status === 401) {
+          router.push('/login');
+          return;
+        }
+
         const data = await response.json();
-        
+
+        if (hasForcedStep) {
+          const preCompleted = Array.from({ length: forcedStepIndex }, (_, idx) => idx);
+          setCompletedSteps(preCompleted);
+          setCurrentStep(forcedStepIndex);
+          return;
+        }
+
         if (data.completed) {
           router.push('/dashboard');
         } else {
@@ -1276,7 +1298,7 @@ export default function Onboarding() {
     };
 
     loadOnboardingProgress();
-  }, [router]);
+  }, [router, hasForcedStep, forcedStepIndex]);
 
   const goToNext = () => {
     const newCompletedSteps = [...completedSteps, currentStep];

@@ -65,7 +65,7 @@ export default function Login() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Ou{' '}
-            <Link href="/cadastro" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/cadastro" className="font-medium text-green-600 hover:text-green-500">
               cadastre-se gratuitamente
             </Link>
           </p>
@@ -89,7 +89,7 @@ export default function Login() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Email"
                 value={formData.email}
                 onChange={handleChange}
@@ -105,7 +105,7 @@ export default function Login() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Senha"
                 value={formData.password}
                 onChange={handleChange}
@@ -115,7 +115,7 @@ export default function Login() {
 
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <Link href="/" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link href="/" className="font-medium text-green-600 hover:text-green-500">
                 Voltar para home
               </Link>
             </div>
@@ -125,7 +125,10 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              style={{ backgroundColor: '#25d366' }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
             >
               {isLoading ? 'Entrando...' : 'Entrar'}
             </button>

@@ -80,7 +80,7 @@ export default function Cadastro() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Ou{' '}
-            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/login" className="font-medium text-green-600 hover:text-green-500">
               entre na sua conta existente
             </Link>
           </p>
@@ -104,7 +104,7 @@ export default function Cadastro() {
                 type="text"
                 autoComplete="name"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Seu nome completo"
                 value={formData.name}
                 onChange={handleChange}
@@ -121,7 +121,7 @@ export default function Cadastro() {
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="seu@email.com"
                 value={formData.email}
                 onChange={handleChange}
@@ -138,7 +138,7 @@ export default function Cadastro() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Pelo menos 6 caracteres"
                 value={formData.password}
                 onChange={handleChange}
@@ -155,7 +155,7 @@ export default function Cadastro() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Digite a senha novamente"
                 value={formData.confirmPassword}
                 onChange={handleChange}
@@ -165,7 +165,7 @@ export default function Cadastro() {
 
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <Link href="/" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link href="/" className="font-medium text-green-600 hover:text-green-500">
                 Voltar para home
               </Link>
             </div>
@@ -175,7 +175,10 @@ export default function Cadastro() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              style={{ backgroundColor: '#25d366' }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
             >
               {isLoading ? 'Criando conta...' : 'Criar conta'}
             </button>

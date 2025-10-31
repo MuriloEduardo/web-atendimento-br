@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getStripe } from '@/lib/stripe';
 
 const ONBOARDING_STEPS = [
   {
@@ -38,6 +39,13 @@ const ONBOARDING_STEPS = [
     subtitle: 'Como você quer que funcione',
     description: 'Vamos configurar as primeiras automações do seu atendimento.',
     component: 'AutomationSetupStep'
+  },
+  {
+    id: 'subscription',
+    title: 'Escolha seu Plano',
+    subtitle: '7 dias grátis para testar tudo',
+    description: 'Comece com nosso teste gratuito de 7 dias, depois escolha o plano ideal.',
+    component: 'SubscriptionStep'
   }
 ];
 
@@ -116,12 +124,12 @@ const WelcomeStep = ({ onNext }) => {
           </p>
         </div>
         
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-start">
-            <svg className="h-5 w-5 text-blue-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-5 w-5 text-green-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <div className="text-sm text-blue-700">
+            <div className="text-sm text-green-700">
               <p className="font-medium">Este processo pode levar alguns dias</p>
               <p>Você pode pausar e continuar quando quiser. Vamos salvar tudo automaticamente!</p>
             </div>
@@ -131,7 +139,10 @@ const WelcomeStep = ({ onNext }) => {
       
       <button
         onClick={onNext}
-        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        style={{ backgroundColor: '#25d366' }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
       >
         Vamos começar! 🚀
       </button>
@@ -210,7 +221,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
             type="text"
             id="companyName"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
             value={businessInfo.companyName}
             onChange={(e) => setBusinessInfo({ ...businessInfo, companyName: e.target.value })}
             placeholder="Ex: Loja da Maria, Clínica Beleza, etc."
@@ -224,7 +235,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
           <select
             id="businessType"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
             value={businessInfo.businessType}
             onChange={(e) => setBusinessInfo({ ...businessInfo, businessType: e.target.value })}
           >
@@ -242,7 +253,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
           <select
             id="monthlyCustomers"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
             value={businessInfo.monthlyCustomers}
             onChange={(e) => setBusinessInfo({ ...businessInfo, monthlyCustomers: e.target.value })}
           >
@@ -260,7 +271,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
           <input
             type="tel"
             id="currentWhatsApp"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
             value={businessInfo.currentWhatsApp}
             onChange={(e) => setBusinessInfo({ ...businessInfo, currentWhatsApp: e.target.value })}
             placeholder="(11) 99999-9999"
@@ -277,7 +288,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
           <select
             id="mainGoal"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
             value={businessInfo.mainGoal}
             onChange={(e) => setBusinessInfo({ ...businessInfo, mainGoal: e.target.value })}
           >
@@ -293,13 +304,16 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
         <button
           type="submit"
-          className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          style={{ backgroundColor: '#25d366' }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
         >
           Continuar
         </button>
@@ -375,7 +389,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
           </h4>
           
           <div className="space-y-4">
-            <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors">
+            <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="radio"
@@ -383,7 +397,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                   value="current"
                   checked={numberChoice === 'current'}
                   onChange={(e) => setNumberChoice(e.target.value)}
-                  className="mt-1 text-indigo-600"
+                  className="mt-1 text-green-600"
                 />
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
@@ -405,7 +419,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
               </label>
             </div>
             
-            <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors">
+            <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="radio"
@@ -413,7 +427,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                   value="new"
                   checked={numberChoice === 'new'}
                   onChange={(e) => setNumberChoice(e.target.value)}
-                  className="mt-1 text-indigo-600"
+                  className="mt-1 text-green-600"
                 />
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
@@ -451,7 +465,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                   value="we-buy"
                   checked={purchaseChoice === 'we-buy'}
                   onChange={(e) => setPurchaseChoice(e.target.value)}
-                  className="mt-1 text-indigo-600"
+                  className="mt-1 text-green-600"
                 />
                 <div>
                   <span className="font-medium text-gray-900">Vocês compram para mim</span>
@@ -469,7 +483,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                   value="client-buys"
                   checked={purchaseChoice === 'client-buys'}
                   onChange={(e) => setPurchaseChoice(e.target.value)}
-                  className="mt-1 text-indigo-600"
+                  className="mt-1 text-green-600"
                 />
                 <div>
                   <span className="font-medium text-gray-900">Eu mesmo compro</span>
@@ -488,13 +502,16 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
         <button
           type="submit"
-          className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          style={{ backgroundColor: '#25d366' }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
         >
           Continuar
         </button>
@@ -588,7 +605,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                 value="yes-use"
                 checked={metaBusinessInfo.knowsMetaBusiness === 'yes-use'}
                 onChange={(e) => setMetaBusinessInfo({ ...metaBusinessInfo, knowsMetaBusiness: e.target.value })}
-                className="mt-1 text-indigo-600"
+                className="mt-1 text-green-600"
               />
               <div>
                 <span className="font-medium text-gray-900">Sim, eu uso para anúncios do Facebook/Instagram</span>
@@ -603,7 +620,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                 value="yes-know"
                 checked={metaBusinessInfo.knowsMetaBusiness === 'yes-know'}
                 onChange={(e) => setMetaBusinessInfo({ ...metaBusinessInfo, knowsMetaBusiness: e.target.value })}
-                className="mt-1 text-indigo-600"
+                className="mt-1 text-green-600"
               />
               <div>
                 <span className="font-medium text-gray-900">Já ouvi falar, mas nunca usei</span>
@@ -618,7 +635,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                 value="no"
                 checked={metaBusinessInfo.knowsMetaBusiness === 'no'}
                 onChange={(e) => setMetaBusinessInfo({ ...metaBusinessInfo, knowsMetaBusiness: e.target.value })}
-                className="mt-1 text-indigo-600"
+                className="mt-1 text-green-600"
               />
               <div>
                 <span className="font-medium text-gray-900">Não, nunca ouvi falar</span>
@@ -642,7 +659,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   value="myself"
                   checked={metaBusinessInfo.whoManages === 'myself'}
                   onChange={(e) => setMetaBusinessInfo({ ...metaBusinessInfo, whoManages: e.target.value })}
-                  className="mt-1 text-indigo-600"
+                  className="mt-1 text-green-600"
                 />
                 <div>
                   <span className="font-medium text-gray-900">Eu mesmo cuido</span>
@@ -657,7 +674,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   value="employee"
                   checked={metaBusinessInfo.whoManages === 'employee'}
                   onChange={(e) => setMetaBusinessInfo({ ...metaBusinessInfo, whoManages: e.target.value })}
-                  className="mt-1 text-indigo-600"
+                  className="mt-1 text-green-600"
                 />
                 <div>
                   <span className="font-medium text-gray-900">Um funcionário da empresa</span>
@@ -672,7 +689,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   value="agency"
                   checked={metaBusinessInfo.whoManages === 'agency'}
                   onChange={(e) => setMetaBusinessInfo({ ...metaBusinessInfo, whoManages: e.target.value })}
-                  className="mt-1 text-indigo-600"
+                  className="mt-1 text-green-600"
                 />
                 <div>
                   <span className="font-medium text-gray-900">Uma agência/freelancer</span>
@@ -687,7 +704,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   value="not-sure"
                   checked={metaBusinessInfo.whoManages === 'not-sure'}
                   onChange={(e) => setMetaBusinessInfo({ ...metaBusinessInfo, whoManages: e.target.value })}
-                  className="mt-1 text-indigo-600"
+                  className="mt-1 text-green-600"
                 />
                 <div>
                   <span className="font-medium text-gray-900">Não tenho certeza</span>
@@ -715,13 +732,16 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
-        <button
+                <button
           type="submit"
-          className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          style={{ backgroundColor: '#25d366' }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
         >
           Continuar
         </button>
@@ -731,6 +751,8 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
     </form>
   );
 };
+
+// Componente de configuração da automação
 
 // Componente de configuração da automação
 const AutomationSetupStep = ({ onNext, onBack }) => {
@@ -816,7 +838,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
             Você receberá um email com os próximos passos.
           </p>
         </div>
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
         <p className="text-sm text-gray-500">Redirecionando para o dashboard...</p>
       </div>
     );
@@ -843,7 +865,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                     value="always"
                     checked={automationConfig.businessHours === 'always'}
                     onChange={(e) => setAutomationConfig({ ...automationConfig, businessHours: e.target.value })}
-                    className="text-indigo-600"
+                    className="text-green-600"
                   />
                   <span className="ml-2 text-sm text-gray-700">24 horas por dia, 7 dias por semana</span>
                 </label>
@@ -854,7 +876,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                     value="business"
                     checked={automationConfig.businessHours === 'business'}
                     onChange={(e) => setAutomationConfig({ ...automationConfig, businessHours: e.target.value })}
-                    className="text-indigo-600"
+                    className="text-green-600"
                   />
                   <span className="ml-2 text-sm text-gray-700">Apenas no horário comercial (configuraremos depois)</span>
                 </label>
@@ -874,7 +896,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 type="checkbox"
                 checked={automationConfig.welcomeMessage}
                 onChange={(e) => setAutomationConfig({ ...automationConfig, welcomeMessage: e.target.checked })}
-                className="mt-1 text-indigo-600"
+                className="mt-1 text-green-600"
               />
               <div>
                 <span className="font-medium text-gray-900">Mensagem de boas-vindas</span>
@@ -887,7 +909,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 type="checkbox"
                 checked={automationConfig.autoResponses}
                 onChange={(e) => setAutomationConfig({ ...automationConfig, autoResponses: e.target.checked })}
-                className="mt-1 text-indigo-600"
+                className="mt-1 text-green-600"
               />
               <div>
                 <span className="font-medium text-gray-900">Respostas automáticas</span>
@@ -900,7 +922,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 type="checkbox"
                 checked={automationConfig.humanHandoff}
                 onChange={(e) => setAutomationConfig({ ...automationConfig, humanHandoff: e.target.checked })}
-                className="mt-1 text-indigo-600"
+                className="mt-1 text-green-600"
               />
               <div>
                 <span className="font-medium text-gray-900">Transferência para humano</span>
@@ -913,7 +935,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 type="checkbox"
                 checked={automationConfig.notifications}
                 onChange={(e) => setAutomationConfig({ ...automationConfig, notifications: e.target.checked })}
-                className="mt-1 text-indigo-600"
+                className="mt-1 text-green-600"
               />
               <div>
                 <span className="font-medium text-gray-900">Notificações</span>
@@ -923,12 +945,12 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
           </div>
         </div>
         
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-start">
-            <svg className="h-5 w-5 text-indigo-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-5 w-5 text-green-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <div className="text-sm text-indigo-700">
+            <div className="text-sm text-green-700">
               <p className="font-medium">Próximos passos:</p>
               <ul className="list-disc list-inside mt-2 space-y-1">
                 <li>Nossa equipe vai configurar tudo para você</li>
@@ -945,7 +967,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
         >
           Voltar
         </button>
@@ -959,6 +981,263 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
       
       <FAQ faqs={faqs} />
     </form>
+  );
+};
+
+// Componente de assinatura com Stripe
+const SubscriptionStep = ({ onNext, onBack }) => {
+  const [selectedPlan, setSelectedPlan] = useState('starter');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const plans = [
+    {
+      id: 'starter',
+      name: 'Starter',
+      price: 'R$ 97',
+      period: '/mês',
+      description: 'Perfeito para pequenos negócios',
+      features: [
+        'Até 1.000 mensagens/mês',
+        'Respostas automáticas',
+        'Chatbot básico',
+        'Suporte por email',
+        'Relatórios básicos'
+      ],
+      recommended: false
+    },
+    {
+      id: 'professional',
+      name: 'Professional',
+      price: 'R$ 197',
+      period: '/mês',
+      description: 'Ideal para empresas em crescimento',
+      features: [
+        'Até 5.000 mensagens/mês',
+        'Chatbot avançado',
+        'Integração com CRM',
+        'Suporte prioritário',
+        'Relatórios avançados',
+        'Múltiplos números',
+        'API personalizada'
+      ],
+      recommended: true
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      price: 'R$ 397',
+      period: '/mês',
+      description: 'Solução completa para grandes empresas',
+      features: [
+        'Mensagens ilimitadas',
+        'Chatbot com IA',
+        'Integração completa',
+        'Suporte 24/7',
+        'Dashboard personalizado',
+        'Múltiplas equipes',
+        'White label'
+      ],
+      recommended: false
+    }
+  ];
+
+  const handlePlanSelect = async (planId) => {
+    setSelectedPlan(planId);
+  };
+
+  const handleStartTrial = async () => {
+    setIsLoading(true);
+    
+    try {
+      // OPÇÃO 1: Trial gratuito sem cartão (implementado atualmente)
+      const response = await fetch('/api/subscription/start-trial', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          planId: selectedPlan
+        })
+      });
+
+      if (response.ok) {
+        onNext();
+      } else {
+        throw new Error('Erro ao iniciar teste');
+      }
+
+      // OPÇÃO 2: Trial com cartão (Stripe real)
+      // Descomente o código abaixo para usar Stripe real
+      /*
+      const stripe = await getStripe();
+      
+      // Criar checkout session no backend
+      const checkoutResponse = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          planId: selectedPlan,
+          trial: true
+        })
+      });
+
+      const { sessionId } = await checkoutResponse.json();
+
+      // Redirecionar para checkout do Stripe
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: sessionId
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      */
+
+    } catch (error) {
+      console.error('Erro ao iniciar trial:', error);
+      alert('Erro ao iniciar teste. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const faqs = [
+    {
+      question: "Como funciona o teste grátis de 7 dias?",
+      answer: "Você tem acesso completo a todas as funcionalidades do plano escolhido por 7 dias. Não cobramos nada neste período e você pode cancelar a qualquer momento."
+    },
+    {
+      question: "Preciso cadastrar cartão de crédito?",
+      answer: "Sim, pedimos um cartão para garantir continuidade após o período de teste, mas só cobramos após os 7 dias se você não cancelar."
+    },
+    {
+      question: "Posso mudar de plano depois?",
+      answer: "Sim! Você pode mudar seu plano a qualquer momento através do dashboard. As mudanças são aplicadas no próximo ciclo."
+    },
+    {
+      question: "E se eu quiser cancelar?",
+      answer: "Sem problemas! Cancele a qualquer momento sem taxa de cancelamento. Seus dados ficam seguros por 30 dias caso queira reativar."
+    }
+  ];
+
+  return (
+    <div className="space-y-8">
+      {/* Badge de teste grátis */}
+      <div className="text-center">
+        <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 border border-green-200">
+          <svg className="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="text-green-800 font-medium">7 dias grátis • Sem compromisso</span>
+        </div>
+      </div>
+
+      {/* Grid de planos */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {plans.map((plan) => (
+          <div
+            key={plan.id}
+            className={`relative border-2 rounded-lg p-6 cursor-pointer transition-all ${
+              selectedPlan === plan.id
+                ? 'border-green-500 bg-green-50'
+                : 'border-gray-200 hover:border-gray-300'
+            } ${plan.recommended ? 'ring-2 ring-green-500' : ''}`}
+            onClick={() => handlePlanSelect(plan.id)}
+          >
+            {plan.recommended && (
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  Recomendado
+                </span>
+              </div>
+            )}
+
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">{plan.name}</h3>
+              <p className="text-gray-600 text-sm">{plan.description}</p>
+            </div>
+
+            <div className="text-center mb-6">
+              <span className="text-3xl font-bold text-gray-900">{plan.price}</span>
+              <span className="text-gray-600">{plan.period}</span>
+              <div className="text-sm text-green-600 font-medium mt-1">
+                Primeiro mês: <span className="line-through text-gray-400">{plan.price}</span> GRÁTIS
+              </div>
+            </div>
+
+            <ul className="space-y-3 mb-6">
+              {plan.features.map((feature, index) => (
+                <li key={index} className="flex items-start">
+                  <svg className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-gray-700 text-sm">{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="text-center">
+              <div className={`w-6 h-6 rounded-full border-2 mx-auto ${
+                selectedPlan === plan.id
+                  ? 'bg-green-500 border-green-500'
+                  : 'border-gray-300'
+              }`}>
+                {selectedPlan === plan.id && (
+                  <svg className="w-4 h-4 text-white m-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Garantias */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start">
+          <svg className="w-6 h-6 text-blue-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h4 className="font-medium text-blue-900">Garantias do seu teste grátis:</h4>
+            <ul className="text-sm text-blue-800 mt-2 space-y-1">
+              <li>• 7 dias completamente grátis</li>
+              <li>• Cancele a qualquer momento sem custo</li>
+              <li>• Suporte gratuito durante o teste</li>
+              <li>• Sem taxas de configuração</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Botões */}
+      <div className="flex space-x-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Voltar
+        </button>
+        <button
+          onClick={handleStartTrial}
+          disabled={isLoading}
+          className="flex-1 flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+          style={{ backgroundColor: '#25d366' }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
+        >
+          {isLoading ? 'Iniciando teste...' : 'Começar teste grátis de 7 dias 🚀'}
+        </button>
+      </div>
+      
+      <FAQ faqs={faqs} title="Dúvidas sobre planos e teste grátis" />
+    </div>
   );
 };
 
@@ -1003,8 +1282,29 @@ export default function Onboarding() {
     const newCompletedSteps = [...completedSteps, currentStep];
     setCompletedSteps(newCompletedSteps);
     
-    if (currentStep < ONBOARDING_STEPS.length - 1) {
+    // Se é o último step (SubscriptionStep), redirecionar para dashboard
+    if (currentStep === ONBOARDING_STEPS.length - 1) {
+      // Completar onboarding e redirecionar
+      completeOnboarding();
+    } else if (currentStep < ONBOARDING_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const completeOnboarding = async () => {
+    try {
+      // Marcar onboarding como completo
+      await fetch('/api/onboarding/complete', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      // Redirecionar para dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Erro ao completar onboarding:', error);
     }
   };
 
@@ -1028,6 +1328,8 @@ export default function Onboarding() {
         return <MetaBusinessStep onNext={goToNext} onBack={goToPrevious} />;
       case 'AutomationSetupStep':
         return <AutomationSetupStep onNext={goToNext} onBack={goToPrevious} />;
+      case 'SubscriptionStep':
+        return <SubscriptionStep onNext={goToNext} onBack={goToPrevious} />;
       default:
         return null;
     }
@@ -1048,7 +1350,7 @@ export default function Onboarding() {
         <div className="mb-8">
           <div className="bg-gray-200 rounded-full h-2">
             <div 
-              className="bg-indigo-600 h-2 rounded-full transition-all duration-300" 
+              className="bg-green-600 h-2 rounded-full transition-all duration-300" 
               style={{ width: `${((currentStep + 1) / ONBOARDING_STEPS.length) * 100}%` }}
             ></div>
           </div>
@@ -1061,7 +1363,7 @@ export default function Onboarding() {
               {currentStepData.title}
             </h2>
             {currentStepData.subtitle && (
-              <p className="text-sm font-medium text-indigo-600 mb-2">
+              <p className="text-sm font-medium text-green-600 mb-2">
                 {currentStepData.subtitle}
               </p>
             )}

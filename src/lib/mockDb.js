@@ -4,7 +4,9 @@
 class MockDatabase {
   constructor() {
     this.users = new Map();
+    this.subscriptions = new Map();
     this.nextUserId = 1;
+    this.nextSubscriptionId = 1;
   }
 
   // Métodos para usuários
@@ -38,6 +40,41 @@ class MockDatabase {
 
   getAllUsers() {
     return Array.from(this.users.values());
+  }
+
+  // Métodos para assinaturas
+  createSubscription(subscriptionData) {
+    const subscription = {
+      id: this.nextSubscriptionId++,
+      ...subscriptionData,
+      createdAt: new Date().toISOString()
+    };
+    this.subscriptions.set(subscription.id, subscription);
+    return subscription;
+  }
+
+  getSubscriptionById(id) {
+    return this.subscriptions.get(id);
+  }
+
+  getSubscriptionByUserId(userId) {
+    return Array.from(this.subscriptions.values()).find(
+      sub => sub.userId === userId && ['active', 'trialing'].includes(sub.status)
+    );
+  }
+
+  updateSubscription(id, updates) {
+    const subscription = this.subscriptions.get(id);
+    if (subscription) {
+      const updatedSubscription = { ...subscription, ...updates };
+      this.subscriptions.set(id, updatedSubscription);
+      return updatedSubscription;
+    }
+    return null;
+  }
+
+  getAllSubscriptions() {
+    return Array.from(this.subscriptions.values());
   }
 
   // Utilitário para extrair usuário do token

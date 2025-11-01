@@ -1,12 +1,103 @@
+import fs from 'fs';
+import path from 'path';
+
 // Mock database para simular um banco de dados
 // Em produção, isso seria substituído por uma conexão real com banco de dados
 
+const DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_FILE_PATH = path.join(DATA_DIR, 'mockDb.json');
+
+function ensureDataDirectory() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+}
+
+function readPersistedData() {
+  try {
+    ensureDataDirectory();
+
+    if (!fs.existsSync(DATA_FILE_PATH)) {
+      const emptyPayload = { users: [], subscriptions: [] };
+      fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(emptyPayload, null, 2), 'utf-8');
+      return emptyPayload;
+    }
+
+    const raw = fs.readFileSync(DATA_FILE_PATH, 'utf-8');
+    if (!raw.trim()) {
+      return { users: [], subscriptions: [] };
+    }
+
+    const parsed = JSON.parse(raw);
+    const users = Array.isArray(parsed.users) ? parsed.users : [];
+    const subscriptions = Array.isArray(parsed.subscriptions) ? parsed.subscriptions : [];
+
+    return { users, subscriptions };
+  } catch (error) {
+    console.error('Erro ao carregar dados do mockDb:', error);
+    return { users: [], subscriptions: [] };
+  }
+}
+
+function writePersistedData(data) {
+  try {
+    ensureDataDirectory();
+    const payload = {
+      users: Array.isArray(data.users) ? data.users : [],
+      subscriptions: Array.isArray(data.subscriptions) ? data.subscriptions : []
+    };
+
+    fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(payload, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Erro ao salvar dados do mockDb:', error);
+  }
+}
+
 class MockDatabase {
   constructor() {
-    this.users = new Map();
-    this.subscriptions = new Map();
-    this.nextUserId = 1;
-    this.nextSubscriptionId = 1;
+    const persistedData = readPersistedData();
+
+    const normalizedUsers = persistedData.users.map((user) => {
+      const numericId = Number(user.id);
+      return {
+        ...user,
+        id: Number.isFinite(numericId) ? numericId : user.id,
+        subscriptionActive: typeof user.subscriptionActive === 'boolean' ? user.subscriptionActive : false
+      };
+    });
+
+    const normalizedSubscriptions = persistedData.subscriptions.map((subscription) => {
+      const numericId = Number(subscription.id);
+      return {
+        ...subscription,
+        id: Number.isFinite(numericId) ? numericId : subscription.id
+      };
+    });
+
+    this.users = new Map(normalizedUsers.map((user) => [user.id, user]));
+    this.subscriptions = new Map(
+      normalizedSubscriptions.map((subscription) => [subscription.id, subscription])
+    );
+
+    const highestUserId = normalizedUsers.reduce((maxId, user) => {
+      const numericId = Number(user.id);
+      return Number.isFinite(numericId) ? Math.max(maxId, numericId) : maxId;
+    }, 0);
+
+  const highestSubscriptionId = normalizedSubscriptions.reduce((maxId, subscription) => {
+      const numericId = Number(subscription.id);
+      return Number.isFinite(numericId) ? Math.max(maxId, numericId) : maxId;
+    }, 0);
+
+    this.nextUserId = highestUserId + 1 || 1;
+    this.nextSubscriptionId = highestSubscriptionId + 1 || 1;
+  }
+
+  persist() {
+    writePersistedData({
+      users: Array.from(this.users.values()),
+      subscriptions: Array.from(this.subscriptions.values())
+    });
   }
 
   // Métodos para usuários
@@ -18,6 +109,7 @@ class MockDatabase {
       subscriptionActive: false
     };
     this.users.set(user.id, user);
+    this.persist();
     return user;
   }
 
@@ -34,6 +126,7 @@ class MockDatabase {
     if (user) {
       const updatedUser = { ...user, ...updates };
       this.users.set(id, updatedUser);
+      this.persist();
       return updatedUser;
     }
     return null;
@@ -51,6 +144,7 @@ class MockDatabase {
       createdAt: new Date().toISOString()
     };
     this.subscriptions.set(subscription.id, subscription);
+    this.persist();
     return subscription;
   }
 
@@ -89,6 +183,7 @@ class MockDatabase {
     if (subscription) {
       const updatedSubscription = { ...subscription, ...updates };
       this.subscriptions.set(id, updatedSubscription);
+      this.persist();
       return updatedSubscription;
     }
     return null;

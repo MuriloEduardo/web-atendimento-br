@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useStripe } from '@stripe/react-stripe-js';
 
 export default function PaymentSuccessComponent() {
   const stripe = useStripe();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [status, setStatus] = useState('loading');
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [completionSent, setCompletionSent] = useState(false);
@@ -16,12 +15,15 @@ export default function PaymentSuccessComponent() {
 
   useEffect(() => {
     if (!stripe) return;
+    if (typeof window === 'undefined') {
+      return;
+    }
 
-    const clientSecret = searchParams.get('payment_intent_client_secret');
+    const params = new URLSearchParams(window.location.search);
+    const clientSecret = params.get('payment_intent_client_secret');
     console.log('[PaymentSuccess] checking intent', { clientSecret });
-    
+
     if (!clientSecret) {
-      // Usar timeout para evitar chamada síncrona
       setTimeout(() => setStatus('error'), 0);
       return;
     }
@@ -45,7 +47,7 @@ export default function PaymentSuccessComponent() {
           break;
       }
     });
-  }, [stripe, searchParams]);
+  }, [stripe]);
 
   useEffect(() => {
     if (status !== 'succeeded' || !paymentDetails) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { isStripeEnabled } from '@/lib/stripe';
 
 const ONBOARDING_STEPS = [
@@ -1220,13 +1220,21 @@ const SubscriptionStep = ({ onNext, onBack }) => {
 export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState([]);
+  const [forcedStepId, setForcedStepId] = useState(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const forcedStepId = searchParams.get('step');
   const forcedStepIndex = forcedStepId
     ? ONBOARDING_STEPS.findIndex((step) => step.id === forcedStepId)
     : -1;
   const hasForcedStep = forcedStepIndex >= 0;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    setForcedStepId(params.get('step'));
+  }, []);
 
   useEffect(() => {
     // Verificar se usuário está logado

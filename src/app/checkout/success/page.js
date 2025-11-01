@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function CheckoutSuccess() {
   const [status, setStatus] = useState('loading');
   const [sessionData, setSessionData] = useState(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
   
   const verifyCheckoutSession = useCallback(async (sessionId) => {
     try {
@@ -32,14 +31,19 @@ export default function CheckoutSuccess() {
   }, [router]);
   
   useEffect(() => {
-    const sessionId = searchParams.get('session_id');
-    
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+
     if (sessionId) {
       verifyCheckoutSession(sessionId);
     } else {
       setStatus('error');
     }
-  }, [searchParams, verifyCheckoutSession]);
+  }, [verifyCheckoutSession]);
 
   if (status === 'loading') {
     return (

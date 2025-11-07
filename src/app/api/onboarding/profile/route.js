@@ -1,32 +1,50 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { prisma } from '@/lib/prisma';
+import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
 
 export async function POST(request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      );
+    if (error) {
+      return createAuthErrorResponse(error);
     }
 
-    const profileData = await request.json();
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
+    }
 
-    // Atualizar perfil do usuário
-    db.updateUser(user.id, {
-      profile: {
-        ...user.profile,
-        ...profileData
+    const data = await request.json();
+
+    // Atualizar perfil do usuário no onboarding
+    const updatedUser = await prisma.user.update({
+      where: { id: tokenUser.userId },
+      data: {
+        name: data.name || undefined,
+        phoneNumber: data.phoneNumber || undefined,
+        businessName: data.businessName || undefined,
+        businessType: data.businessType || undefined,
+        website: data.website || undefined,
+        profileComplete: true
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phoneNumber: true,
+        businessName: true,
+        businessType: true,
+        website: true,
+        profileComplete: true,
+        onboardingComplete: true
       }
     });
 
     return NextResponse.json({
-      success: true,
+      user: updatedUser,
       message: 'Perfil atualizado com sucesso'
-    });
+    }, { status: 200 });
 
   } catch (error) {
     console.error('Erro ao salvar perfil:', error);

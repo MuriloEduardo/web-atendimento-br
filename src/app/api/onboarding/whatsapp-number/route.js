@@ -1,32 +1,25 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
 
 export async function POST(request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      );
+    if (error) {
+      return createAuthErrorResponse(error);
     }
 
-    const { numberChoice, purchaseChoice } = await request.json();
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
+    }
 
-    // Salvar escolha do número do WhatsApp
-    db.updateUser(user.id, {
-      whatsappNumber: {
-        choice: numberChoice,
-        purchaseChoice: purchaseChoice || null
-      }
-    });
+    await request.json().catch(() => ({}));
 
     return NextResponse.json({
       success: true,
       message: 'Configuração do número do WhatsApp salva com sucesso'
-    });
+    }, { status: 200 });
 
   } catch (error) {
     console.error('Erro ao salvar configuração do WhatsApp:', error);

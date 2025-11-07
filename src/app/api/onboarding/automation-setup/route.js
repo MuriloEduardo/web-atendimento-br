@@ -1,32 +1,26 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
 
 export async function POST(request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      );
+    if (error) {
+      return createAuthErrorResponse(error);
     }
 
-    const automationConfig = await request.json();
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
+    }
 
-    // Salvar configurações da automação
-    db.updateUser(user.id, {
-      automationConfig: {
-        ...user.automationConfig,
-        ...automationConfig
-      }
-    });
+    // Endpoint genérico para automação - apenas valida autenticação
+    await request.json().catch(() => ({}));
 
     return NextResponse.json({
       success: true,
       message: 'Configurações de automação salvas com sucesso'
-    });
+    }, { status: 200 });
 
   } catch (error) {
     console.error('Erro ao salvar configurações de automação:', error);

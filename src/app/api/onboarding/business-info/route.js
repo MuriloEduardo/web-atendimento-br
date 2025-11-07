@@ -1,32 +1,42 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { prisma } from '@/lib/prisma';
+import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
 
 export async function POST(request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      );
+    if (error) {
+      return createAuthErrorResponse(error);
     }
 
-    const businessInfo = await request.json();
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
+    }
+
+    const data = await request.json();
 
     // Atualizar informações da empresa
-    db.updateUser(user.id, {
-      businessInfo: {
-        ...user.businessInfo,
-        ...businessInfo
+    const updatedUser = await prisma.user.update({
+      where: { id: tokenUser.userId },
+      data: {
+        businessName: data.businessName || undefined,
+        businessType: data.businessType || undefined,
+        website: data.website || undefined
+      },
+      select: {
+        id: true,
+        businessName: true,
+        businessType: true,
+        website: true
       }
     });
 
     return NextResponse.json({
-      success: true,
+      user: updatedUser,
       message: 'Informações da empresa salvas com sucesso'
-    });
+    }, { status: 200 });
 
   } catch (error) {
     console.error('Erro ao salvar informações da empresa:', error);

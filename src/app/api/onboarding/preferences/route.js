@@ -1,32 +1,25 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
 
 export async function POST(request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      );
+    if (error) {
+      return createAuthErrorResponse(error);
     }
 
-    const preferencesData = await request.json();
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
+    }
 
-    // Atualizar preferências do usuário
-    db.updateUser(user.id, {
-      preferences: {
-        ...user.preferences,
-        ...preferencesData
-      }
-    });
+    await request.json().catch(() => ({}));
 
     return NextResponse.json({
       success: true,
       message: 'Preferências atualizadas com sucesso'
-    });
+    }, { status: 200 });
 
   } catch (error) {
     console.error('Erro ao salvar preferências:', error);

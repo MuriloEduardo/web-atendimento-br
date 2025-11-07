@@ -1,25 +1,26 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
 
 export async function POST(request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      );
+    if (error) {
+      return createAuthErrorResponse(error);
+    }
+
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
     }
 
     // Simular reenvio de email
-    console.log(`Reenviando email de verificação para: ${user.email}`);
+    console.log(`Reenviando email de verificação para: ${tokenUser.email}`);
 
     return NextResponse.json({
       success: true,
       message: 'Email de verificação reenviado'
-    });
+    }, { status: 200 });
 
   } catch (error) {
     console.error('Erro ao reenviar email:', error);

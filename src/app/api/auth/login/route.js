@@ -66,12 +66,6 @@ export async function POST(request) {
     // Remover senha dos dados retornados
     const { password: _, ...userWithoutPassword } = user;
 
-    // Atualizar último login (opcional)
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { updatedAt: new Date() }
-    });
-
     return NextResponse.json({
       token,
       user: userWithoutPassword,

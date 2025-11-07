@@ -1,30 +1,30 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
+import { getOnboardingProgress } from '@/lib/onboardingHelper';
 
 export async function GET(request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      );
+    if (error) {
+      return createAuthErrorResponse(error);
     }
 
-    if (user.onboardingCompleted) {
-      return NextResponse.json({
-        completed: true,
-        currentStep: 0,
-        completedSteps: []
-      });
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
+    }
+
+    // Obter progresso
+    const progress = await getOnboardingProgress(tokenUser.userId);
+
+    if (!progress) {
+      return createAuthErrorResponse('Usuário não encontrado');
     }
 
     return NextResponse.json({
-      completed: false,
-      currentStep: user.onboardingStep || 0,
-      completedSteps: user.completedSteps || []
+      ...progress,
+      message: 'Progresso do onboarding obtido com sucesso'
     });
 
   } catch (error) {

@@ -105,8 +105,34 @@ model Company {
   
   transactions      Transaction[]
   automations       Automation[]
+  reservedNumbers   ReservedNumber[]
 
   @@map("companies")
+}
+
+model ReservedNumber {
+  id                String   @id @default(cuid())
+  codigo            String   // Código do número na BRDID
+  numero            String   // Número formatado
+  numeroCompleto    String?  // Número com código do país
+  areaLocal         String   // DDD/Área
+  cn                String   // Código nacional
+  valorMensal       Float    // Valor mensal do número
+  
+  // Status
+  status            String   @default("reserved") // reserved, active, cancelled
+  
+  // Relacionamento
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId         String
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  activatedAt       DateTime?
+  cancelledAt       DateTime?
+
+  @@map("reserved_numbers")
 }
 
 model Transaction {

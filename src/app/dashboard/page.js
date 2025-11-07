@@ -212,7 +212,7 @@ export default function Dashboard() {
 
                 <div className="mt-4 pt-4 border-t border-green-200">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {subscription.subscription.features.slice(0, 4).map((feature, index) => (
+                    {subscription.subscription?.features?.slice(0, 4).map((feature, index) => (
                       <div key={index} className="flex items-center text-sm text-gray-700">
                         <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

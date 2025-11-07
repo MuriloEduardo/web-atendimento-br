@@ -31,7 +31,18 @@ export async function GET(request) {
       }
     });
 
-    if (!company || !company.stripeSubscriptionId) {
+    if (!company) {
+      return NextResponse.json({
+        hasSubscription: false,
+        subscriptionStatus: 'inactive',
+        message: 'Empresa não encontrada'
+      });
+    }
+
+    // Verificar se tem assinatura ativa (paymentSetup true OU stripeSubscriptionId preenchido)
+    const hasActiveSubscription = company.paymentSetup || company.stripeSubscriptionId;
+
+    if (!hasActiveSubscription) {
       return NextResponse.json({
         hasSubscription: false,
         subscriptionStatus: 'inactive',
@@ -41,16 +52,18 @@ export async function GET(request) {
 
     // Determinar qual plano baseado no priceId
     const currentPlan = Object.values(PLANS).find(
-      plan => plan.stripePriceId === company.stripePriceId
+      plan => plan.id === company.stripePriceId || plan.stripePriceId === company.stripePriceId
     );
 
     return NextResponse.json({
       hasSubscription: true,
       subscription: {
-        id: company.stripeSubscriptionId,
+        id: company.stripeSubscriptionId || company.id,
         stripeSubscriptionId: company.stripeSubscriptionId,
-        planId: currentPlan?.id || 'unknown',
+        planId: currentPlan?.id || company.stripePriceId || 'unknown',
         planName: currentPlan?.name || 'Desconhecido',
+        price: currentPlan?.price || 0,
+        features: currentPlan?.features || [],
         status: company.status === 'active' ? 'active' : company.status,
         paymentSetup: company.paymentSetup,
         createdAt: company.createdAt

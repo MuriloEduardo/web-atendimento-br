@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import prisma from '@/lib/prisma';
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key-dev-only';
 
 export async function POST(request) {
@@ -79,7 +78,6 @@ export async function POST(request) {
       { error: 'Erro interno do servidor' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
+  // Singleton Prisma client gerencia o ciclo de vida da conexão
 }

@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import prisma from '@/lib/prisma';
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key-dev-only';
 
 const getStripeInstance = async () => {
@@ -113,7 +112,6 @@ export async function POST(request) {
       error: 'Erro ao ativar assinatura',
       details: error.message
     }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
+  // Não desconectar o Prisma - o singleton gerencia a conexão
 }

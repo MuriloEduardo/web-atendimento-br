@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import prisma from '@/lib/prisma';
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key-dev-only';
 
 export async function GET(request) {
@@ -27,12 +26,22 @@ export async function GET(request) {
             );
         }
 
-        const user = await prisma.user.findUnique({
-            where: { id: decoded.userId },
-            include: {
-                company: true
-            }
-        });
+        // Adicionar timeout e retry
+        let user;
+        try {
+            user = await prisma.user.findUnique({
+                where: { id: decoded.userId },
+                include: {
+                    company: true
+                }
+            });
+        } catch (dbError) {
+            console.error('Erro ao buscar usuário no banco:', dbError);
+            return NextResponse.json(
+                { error: 'Erro ao conectar com o banco de dados' },
+                { status: 503 }
+            );
+        }
 
         if (!user) {
             return NextResponse.json(
@@ -80,11 +89,11 @@ export async function GET(request) {
 
     } catch (error) {
         console.error('Erro ao buscar status do onboarding:', error);
+        console.error('Stack trace:', error.stack);
         return NextResponse.json(
-            { error: 'Erro ao buscar status do onboarding' },
+            { error: 'Erro ao buscar status do onboarding', details: error.message },
             { status: 500 }
         );
-    } finally {
-        await prisma.$disconnect();
     }
+    // Não desconectar o Prisma - o singleton gerencia a conexão
 }

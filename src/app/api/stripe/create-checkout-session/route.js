@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import prisma from '@/lib/prisma';
 import { PLANS } from '@/lib/plans';
 
-const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'secret-key-dev-only';
 
 // Verificar se Stripe está configurado
@@ -132,9 +131,8 @@ export async function POST(request) {
       error: 'Erro ao criar sessão de pagamento',
       details: error.message
     }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
+  // Singleton Prisma client gerencia o ciclo de vida da conexão
 }
 
 // Função auxiliar para verificar sessão de checkout

@@ -20,16 +20,105 @@ model User {
   resetPasswordToken String?
   resetPasswordExpires DateTime?
   phoneNumber       String?
-  businessName      String?
-  businessType      String?
-  website           String?
   profileComplete   Boolean  @default(false)
   onboardingComplete Boolean @default(false)
   subscriptionStatus String  @default("inactive")
   plan              String?
-  stripeCustomerId  String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relacionamento com Company
+  company           Company?
+  companyId         String?
+
+  @@map("users")
+}
+
+model Company {
+  id                String   @id @default(cuid())
+  name              String
+  email             String?
+  type              String?
+  description       String?
+  website           String?
+  phoneNumber       String?
+  
+  // Endereço
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  country           String?
+  
+  // WhatsApp/Comunicação
+  whatsappNumber    String?
+  whatsappVerified  Boolean  @default(false)
+  
+  // Business Info
+  registrationNumber String? // CNPJ/CPF
+  registrationType  String? // PJ/PF
+  businessCategory  String?
+  employees         Int?
+  
+  // Stripe Integration
+  stripeCustomerId  String?  @unique
+  stripeAccountId   String?
+  stripePriceId     String?
+  stripeSubscriptionId String?
+  
+  // Status
+  status            String   @default("setup") // setup, active, suspended, cancelled
+  setupProgress     Int      @default(0) // 0-100
+  automationEnabled Boolean  @default(false)
+  
+  // Onboarding steps
+  profileSetup      Boolean  @default(false)
+  whatsappSetup     Boolean  @default(false)
+  paymentSetup      Boolean  @default(false)
+  automationSetup   Boolean  @default(false)
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relationship
+  owner             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId           String   @unique
+  
+  transactions      Transaction[]
+  automations       Automation[]
+
+  @@map("companies")
+}
+
+model Transaction {
+  id                String   @id @default(cuid())
+  amount            Float
+  currency          String   @default("BRL")
+  status            String   @default("pending") // pending, completed, failed
+  stripeTransactionId String?
+  
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId         String
+  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  @@map("users")
+  @@map("transactions")
+}
+
+model Automation {
+  id                String   @id @default(cuid())
+  name              String
+  type              String   // welcome_message, auto_response, etc
+  enabled           Boolean  @default(true)
+  config            String?  // JSON config
+  
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId         String
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("automations")
 }

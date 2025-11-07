@@ -15,13 +15,24 @@ export async function POST(request) {
       return createAuthErrorResponse('Token inválido');
     }
 
-    // Buscar usuário
+    // Buscar usuário e empresa
     const user = await prisma.user.findUnique({
       where: { id: tokenUser.userId },
       select: {
         profileComplete: true,
         isEmailVerified: true,
-        subscriptionStatus: true
+        subscriptionStatus: true,
+        company: {
+          select: {
+            id: true,
+            stripeCustomerId: true,
+            paymentSetup: true,
+            profileSetup: true,
+            whatsappSetup: true,
+            automationSetup: true,
+            setupProgress: true
+          }
+        }
       }
     });
 
@@ -32,7 +43,23 @@ export async function POST(request) {
     // Verificar se todos os passos foram completos
     if (!user.profileComplete || !user.isEmailVerified) {
       return NextResponse.json(
-        { error: 'Complete todos os passos do onboarding antes de finalizar.' },
+        { error: 'Complete seu perfil e verifique seu email antes de finalizar.' },
+        { status: 409 }
+      );
+    }
+
+    // Verificar se empresa existe
+    if (!user.company) {
+      return NextResponse.json(
+        { error: 'Empresa não configurada. Crie uma empresa para continuar.' },
+        { status: 409 }
+      );
+    }
+
+    // Verificar se empresa tem Stripe configurado
+    if (!user.company.stripeCustomerId || !user.company.paymentSetup) {
+      return NextResponse.json(
+        { error: 'Configure seu método de pagamento (Stripe) antes de completar o onboarding.' },
         { status: 409 }
       );
     }

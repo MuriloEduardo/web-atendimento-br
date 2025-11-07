@@ -1,107 +1,79 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useStripe } from '@stripe/react-stripe-js';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function PaymentSuccessComponent() {
-  const stripe = useStripe();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [status, setStatus] = useState('loading');
-  const [paymentDetails, setPaymentDetails] = useState(null);
-  const [activationStatus, setActivationStatus] = useState('idle');
-  const [activationError, setActivationError] = useState('');
+  const [sessionData, setSessionData] = useState(null);
 
   useEffect(() => {
-    if (!stripe) return;
-    if (typeof window === 'undefined') {
+    const sessionId = searchParams.get('session_id');
+
+    if (!sessionId) {
+      setStatus('error');
       return;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const clientSecret = params.get('payment_intent_client_secret');
-    console.log('[PaymentSuccess] checking intent', { clientSecret });
-
-    if (!clientSecret) {
-      setTimeout(() => setStatus('error'), 0);
-      return;
-    }
-
-    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-      console.log('[PaymentSuccess] retrievePaymentIntent', paymentIntent);
-      switch (paymentIntent.status) {
-        case 'succeeded':
-          setStatus('succeeded');
-          setPaymentDetails(paymentIntent);
-          setActivationStatus('idle');
-          break;
-        case 'processing':
-          setStatus('processing');
-          break;
-        case 'requires_payment_method':
-          setStatus('error');
-          break;
-        default:
-          setStatus('error');
-          break;
-      }
-    });
-  }, [stripe]);
-
-  useEffect(() => {
-    if (status !== 'succeeded' || !paymentDetails) {
-      return;
-    }
-
-    if (activationStatus !== 'idle') {
-      return;
-    }
-
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      setActivationError('Sua sessão expirou. Faça login novamente para concluir a ativação.');
-      setActivationStatus('error');
-      return;
-    }
-
-    const activateSubscription = async () => {
+    // Verificar status da sessão
+    const checkSession = async () => {
       try {
-        setActivationStatus('pending');
-        setActivationError('');
+        const token = localStorage.getItem('token');
 
-        const response = await fetch('/api/subscription/activate', {
-          method: 'POST',
+        if (!token) {
+          setStatus('error');
+          return;
+        }
+
+        // Buscar detalhes da sessão
+        const response = await fetch(`/api/stripe/session?session_id=${sessionId}`, {
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ paymentIntentId: paymentDetails.id })
+          }
         });
 
         if (!response.ok) {
-          const data = await response.json().catch(() => ({}));
-          throw new Error(data.error || 'Não foi possível ativar sua assinatura');
+          throw new Error('Erro ao verificar sessão');
         }
 
-        setActivationStatus('success');
+        const data = await response.json();
+        setSessionData(data);
+
+        // Se pagamento foi bem-sucedido
+        if (data.payment_status === 'paid') {
+          setStatus('succeeded');
+
+          // Ativar assinatura
+          await fetch('/api/subscription/activate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ sessionId })
+          });
+        } else {
+          setStatus('processing');
+        }
       } catch (error) {
-        console.error('Erro ao ativar assinatura:', error);
-        setActivationError(error.message || 'Erro ao ativar sua assinatura.');
-        setActivationStatus('error');
+        console.error('Erro ao verificar pagamento:', error);
+        setStatus('error');
       }
     };
 
-    activateSubscription();
-  }, [status, paymentDetails, activationStatus]);
+    checkSession();
+  }, [searchParams]);
 
   useEffect(() => {
-    // Não completar onboarding aqui - ainda há etapas de configuração
-    // O onboarding só será concluído após configurar WhatsApp e automações
-    if (status === 'succeeded' && activationStatus === 'success') {
-      console.log('[PaymentSuccess] Pagamento confirmado - usuário deve continuar configuração');
+    if (status === 'succeeded') {
+      // Redirecionar para dashboard após 3 segundos
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 3000);
     }
-  }, [status, activationStatus]);
+  }, [status, router]);
 
   const redirectToDashboard = () => {
     // Redirecionar para o dashboard onde onboarding continuará
@@ -204,23 +176,17 @@ export default function PaymentSuccessComponent() {
             Sua assinatura está ativa!
           </p>
           <p className="text-green-700">
-            {activationStatus === 'success'
-              ? 'Agora vamos configurar seu WhatsApp Business e suas automações para você começar a atender seus clientes!'
-              : 'Estamos finalizando a ativação da sua conta. Em breve você poderá começar!'}
+            Agora vamos configurar seu WhatsApp Business e suas automações para você começar a atender seus clientes!
           </p>
         </div>
 
-        {paymentDetails && (
+        {sessionData && (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 text-left">
             <h3 className="font-medium text-gray-900 mb-3 text-center">📋 Detalhes do Pagamento</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">ID da Transação:</span>
-                <span className="font-mono text-xs text-gray-800">{paymentDetails.id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Valor Pago:</span>
-                <span className="font-bold text-green-600">R$ {(paymentDetails.amount / 100).toFixed(2)}</span>
+                <span className="text-gray-600">Email:</span>
+                <span className="font-medium text-gray-800">{sessionData.customer_email}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Status:</span>
@@ -232,25 +198,6 @@ export default function PaymentSuccessComponent() {
           </div>
         )}
 
-        {activationStatus === 'pending' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-sm text-blue-800">
-            Estamos finalizando a ativação da sua conta. Isso leva apenas alguns instantes...
-          </div>
-        )}
-
-        {activationStatus === 'error' && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-sm text-red-700">
-            <p className="font-medium mb-2">Não foi possível ativar sua assinatura automaticamente.</p>
-            <p className="mb-3">{activationError}</p>
-            <button
-              onClick={retryActivation}
-              className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-            >
-              Tentar ativar novamente
-            </button>
-          </div>
-        )}
-
         <div className="space-y-4">
           <button
             onClick={redirectToDashboard}
@@ -259,7 +206,7 @@ export default function PaymentSuccessComponent() {
             ✨ Continuar Configuração →
           </button>
           <p className="text-sm text-gray-500">
-            Seu acesso foi liberado! Vamos configurar tudo agora.
+            Redirecionando automaticamente em 3 segundos...
           </p>
         </div>
 

@@ -58,6 +58,12 @@ model Company {
   whatsappNumber    String?
   whatsappVerified  Boolean  @default(false)
   
+  // Meta Business API Integration
+  metaBusinessId    String?
+  whatsappBusinessAccountId String?
+  phoneNumberId     String?
+  metaAccessToken   String?
+  
   // BRDID Integration (Phone Number)
   brdidNumber       String?
   brdidNumberId     String?

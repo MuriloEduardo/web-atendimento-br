@@ -104,8 +104,8 @@ export default function PaymentSuccessComponent() {
   }, [status, activationStatus]);
 
   const redirectToDashboard = () => {
-    // Após pagamento, continuar onboarding no step de WhatsApp
-    router.push('/onboarding?step=whatsapp-number');
+    // Redirecionar para o dashboard onde onboarding continuará
+    router.push('/dashboard');
   };
 
   const retryActivation = () => {
@@ -143,7 +143,7 @@ export default function PaymentSuccessComponent() {
             Seu pagamento está sendo processado. Você receberá um email de confirmação em breve.
           </p>
           <button
-            onClick={() => router.push('/onboarding?step=whatsapp-number')}
+            onClick={() => router.push('/dashboard')}
             className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
           >
             Continuar Configuração

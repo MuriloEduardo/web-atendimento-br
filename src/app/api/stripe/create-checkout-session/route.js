@@ -85,8 +85,8 @@ export async function POST(request) {
       },
 
       // URLs de redirecionamento
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/onboarding`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
 
       // Metadados para webhook
       metadata: {

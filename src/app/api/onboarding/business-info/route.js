@@ -18,9 +18,9 @@ export async function POST(request) {
     const data = await request.json();
 
     // Validações básicas
-    if (!data.businessName) {
+    if (!data.name) {
       return NextResponse.json(
-        { error: 'Nome do negócio é obrigatório' },
+        { error: 'Nome da empresa é obrigatório' },
         { status: 400 }
       );
     }
@@ -34,9 +34,13 @@ export async function POST(request) {
       // Criar empresa se não existir
       company = await prisma.company.create({
         data: {
-          name: data.businessName,
-          type: data.businessType,
-          website: data.website,
+          name: data.name,
+          registrationNumber: data.cnpj,
+          phoneNumber: data.phone,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          zipCode: data.zipCode,
           owner: { connect: { id: tokenUser.userId } },
           profileSetup: true
         }
@@ -52,60 +56,27 @@ export async function POST(request) {
       company = await prisma.company.update({
         where: { id: company.id },
         data: {
-          name: data.businessName,
-          type: data.businessType,
-          website: data.website,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
+          name: data.name,
+          registrationNumber: data.cnpj,
+          phoneNumber: data.phone,
           address: data.address,
           city: data.city,
           state: data.state,
           zipCode: data.zipCode,
-          registrationNumber: data.registrationNumber,
-          registrationType: data.registrationType,
-          businessCategory: data.businessCategory,
-          employees: data.employees,
-          profileSetup: true,
-          setupProgress: Math.round(((true ? 1 : 0) + (company.whatsappSetup ? 1 : 0) + (company.paymentSetup ? 1 : 0) + (company.automationSetup ? 1 : 0)) / 4 * 100)
-        },
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          website: true,
-          profileSetup: true,
-          setupProgress: true
+          profileSetup: true
         }
       });
     }
 
-    // Atualizar usuário também
-    const updatedUser = await prisma.user.update({
+    // Atualizar usuário também se necessário
+    await prisma.user.update({
       where: { id: tokenUser.userId },
       data: {
-        businessName: data.businessName,
-        businessType: data.businessType,
-        website: data.website,
-        profileComplete: true  // Marcar perfil como completo
-      },
-      select: {
-        id: true,
-        businessName: true,
-        businessType: true,
-        website: true,
-        profileComplete: true,
-        company: {
-          select: {
-            id: true,
-            profileSetup: true,
-            setupProgress: true
-          }
-        }
+        profileComplete: true
       }
     });
 
     return NextResponse.json({
-      user: updatedUser,
       company,
       message: 'Informações da empresa salvas com sucesso'
     }, { status: 200 });

@@ -59,8 +59,8 @@ export default function Cadastro() {
         // Salvar token no localStorage
         localStorage.setItem('token', data.token);
         
-        // Usuário recém-cadastrado sempre vai para onboarding
-        router.push('/onboarding');
+        // Redirecionar para o dashboard
+        router.push('/dashboard');
       } else {
         setError(data.error || 'Erro ao criar conta');
       }

@@ -40,12 +40,8 @@ export default function Login() {
         // Salvar token no localStorage
         localStorage.setItem('token', data.token);
 
-        // Verificar se precisa de onboarding
-        if (!data.user.onboardingComplete) {
-          router.push('/onboarding');
-        } else {
-          router.push('/dashboard');
-        }
+        // Sempre ir para o dashboard - onboarding será feito lá
+        router.push('/dashboard');
       } else {
         setError(data.error || 'Erro ao fazer login');
       }

@@ -183,7 +183,7 @@ export default function SettingsPage() {
                                     <div className="border-2 border-gray-200 rounded-lg p-4">
                                         <h3 className="text-sm font-medium text-gray-900 mb-2">Autenticação em Dois Fatores (2FA)</h3>
                                         <p className="text-sm text-gray-600 mb-4">Adicione uma camada extra de segurança à sua conta</p>
-                                        <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                                        <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm text-gray-700">
                                             Configurar 2FA
                                         </button>
                                     </div>
@@ -198,7 +198,7 @@ export default function SettingsPage() {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                     </svg>
                                                     <div>
-                                                        <p className="text-sm font-medium">Sessão atual</p>
+                                                        <p className="text-sm font-medium text-gray-900">Sessão atual</p>
                                                         <p className="text-xs text-gray-500">Linux • Chrome</p>
                                                     </div>
                                                 </div>

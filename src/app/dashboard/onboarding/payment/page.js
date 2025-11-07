@@ -153,7 +153,7 @@ export default function PaymentOnboardingPage() {
                                 </button>
                                 <button
                                     onClick={() => router.push('/dashboard/subscription')}
-                                    className="px-6 py-2 border rounded-md hover:bg-gray-50"
+                                    className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                                 >
                                     Gerenciar Assinatura
                                 </button>

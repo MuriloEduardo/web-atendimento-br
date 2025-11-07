@@ -85,7 +85,7 @@ export default function PaymentOnboardingPage() {
                 <div className="mb-8">
                     <div className="flex items-center space-x-3 mb-2">
                         <span className="text-4xl">💳</span>
-                        <h1 className="text-3xl font-bold">Assinatura</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">Assinatura</h1>
                     </div>
                     <p className="text-gray-600">Gerencie sua assinatura e forma de pagamento</p>
                 </div>
@@ -98,10 +98,10 @@ export default function PaymentOnboardingPage() {
                             {paymentData?.completed ? '✓' : '⏱'}
                         </div>
                         <div>
-                            <h3 className="font-semibold">
+                            <h3 className="font-semibold text-gray-900">
                                 {paymentData?.completed ? 'Assinatura Ativa' : 'Assinatura Pendente'}
                             </h3>
-                            <p className="text-sm">
+                            <p className="text-sm text-gray-700">
                                 {paymentData?.completed
                                     ? 'Sua assinatura está ativa e funcionando'
                                     : 'Complete o pagamento para ativar sua conta'
@@ -115,7 +115,7 @@ export default function PaymentOnboardingPage() {
                     {paymentData?.completed ? (
                         <div className="space-y-6">
                             <div>
-                                <h2 className="text-xl font-semibold mb-4">Detalhes da Assinatura</h2>
+                                <h2 className="text-xl font-semibold mb-4 text-gray-900">Detalhes da Assinatura</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-500">Plano Atual</label>
@@ -165,7 +165,7 @@ export default function PaymentOnboardingPage() {
                                 <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <span className="text-3xl">💳</span>
                                 </div>
-                                <h3 className="text-lg font-medium mb-2">Ative Sua Assinatura</h3>
+                                <h3 className="text-lg font-medium mb-2 text-gray-900">Ative Sua Assinatura</h3>
                                 <p className="text-gray-600 mb-6">
                                     Escolha um plano para começar a usar o Atendimento BR
                                 </p>
@@ -188,8 +188,8 @@ export default function PaymentOnboardingPage() {
                                                 Mais Popular
                                             </span>
                                         )}
-                                        <h3 className="text-lg font-semibold text-center">{plan.name}</h3>
-                                        <p className="text-2xl font-bold text-center my-3">{plan.price}<span className="text-sm text-gray-500">/mês</span></p>
+                                        <h3 className="text-lg font-semibold text-center text-gray-900">{plan.name}</h3>
+                                        <p className="text-2xl font-bold text-center my-3 text-gray-900">{plan.price}<span className="text-sm text-gray-500">/mês</span></p>
                                         <ul className="space-y-2 mb-4">
                                             {plan.features.map((feature, i) => (
                                                 <li key={i} className="text-sm text-gray-600 flex items-center">

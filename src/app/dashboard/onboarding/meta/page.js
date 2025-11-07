@@ -78,7 +78,7 @@ export default function MetaOnboardingPage() {
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-2">
             <span className="text-4xl">🔗</span>
-            <h1 className="text-3xl font-bold">Meta Business</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Meta Business</h1>
           </div>
           <p className="text-gray-600">Conecte sua conta Meta Business para integrar o WhatsApp</p>
         </div>
@@ -97,10 +97,10 @@ export default function MetaOnboardingPage() {
               ) : '⏱'}
             </div>
             <div>
-              <h3 className="font-semibold">
+              <h3 className="font-semibold text-gray-900">
                 {metaData?.completed ? isApprovalPending ? 'Aguardando Aprovação' : 'Etapa Concluída' : 'Etapa Pendente'}
               </h3>
-              <p className="text-sm">
+              <p className="text-sm text-gray-700">
                 {metaData?.completed 
                   ? isApprovalPending 
                     ? 'Meta está analisando sua conta Business. Pode levar até 5 dias úteis'
@@ -116,7 +116,7 @@ export default function MetaOnboardingPage() {
           {metaData?.completed ? (
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-semibold mb-4">Conta Conectada</h2>
+                <h2 className="text-xl font-semibold mb-4 text-gray-900">Conta Conectada</h2>
                 <div className="space-y-3">
                   {metaData.businessId && (
                     <div>
@@ -159,7 +159,7 @@ export default function MetaOnboardingPage() {
               <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">🔗</span>
               </div>
-              <h3 className="text-lg font-medium mb-2">Meta Business Não Conectado</h3>
+              <h3 className="text-lg font-medium mb-2 text-gray-900">Meta Business Não Conectado</h3>
               <p className="text-gray-600 mb-6">Configure a integração com Meta Business</p>
               <button
                 onClick={() => router.push('/onboarding')}

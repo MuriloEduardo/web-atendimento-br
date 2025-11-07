@@ -1,0 +1,97 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic [active]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - navigation [ref=e6]:
+            - button "previous" [disabled] [ref=e7]:
+              - img "previous" [ref=e8]
+            - generic [ref=e10]:
+              - generic [ref=e11]: 1/
+              - text: "1"
+            - button "next" [disabled] [ref=e12]:
+              - img "next" [ref=e13]
+          - img
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - img [ref=e17]
+            - generic "Latest available version is detected (16.0.1)." [ref=e19]: Next.js 16.0.1
+            - generic [ref=e20]: Turbopack
+          - img
+      - dialog "Build Error" [ref=e22]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e27]:
+              - generic [ref=e29]: Build Error
+              - generic [ref=e30]:
+                - button "Copy Error Info" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+                - link "Go to related documentation" [ref=e34] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/messages/module-not-found
+                  - img [ref=e35]
+                - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e37] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                  - img [ref=e38]
+            - generic [ref=e47]: "Module not found: Can't resolve 'fs'"
+          - generic [ref=e49]:
+            - generic [ref=e51]:
+              - img [ref=e53]
+              - generic [ref=e55]: ./node_modules/@nodelib/fs.scandir/out/adapters/fs.js (4:12)
+              - button "Open in editor" [ref=e56] [cursor=pointer]:
+                - img [ref=e58]
+            - generic [ref=e61]:
+              - generic [ref=e62]: "Module not found: Can't resolve 'fs'"
+              - generic [ref=e63]: 2 |
+              - text: Object.defineProperty(exports, "__esModule",
+              - generic [ref=e64]: "{ value"
+              - text: ": true"
+              - generic [ref=e65]: "})"
+              - text: ;
+              - generic [ref=e66]: 3 |
+              - generic [ref=e67]: exports
+              - text: .
+              - generic [ref=e68]: createFileSystemAdapter
+              - text: =
+              - generic [ref=e69]: exports
+              - text: .FILE_SYSTEM_ADAPTER = void 0; >
+              - generic [ref=e70]: 4 |
+              - text: const
+              - generic [ref=e71]: fs
+              - text: =
+              - generic [ref=e72]: require(
+              - text: "\"fs\");"
+              - generic [ref=e73]: "|"
+              - text: ^^^^^^^^^^^^^
+              - generic [ref=e74]: 5 |
+              - generic [ref=e75]: exports
+              - text: .FILE_SYSTEM_ADAPTER =
+              - generic [ref=e76]: "{"
+              - generic [ref=e77]: 6 |
+              - generic [ref=e78]: lstat
+              - text: ":"
+              - generic [ref=e79]: fs
+              - text: .lstat,
+              - generic [ref=e80]: 7 |
+              - generic [ref=e81]: stat
+              - text: ":"
+              - generic [ref=e82]: fs
+              - text: .stat,
+              - generic [ref=e83]:
+                - text: "Import trace: Client Component Browser: ./node_modules/@nodelib/fs.scandir/out/adapters/fs.js [Client Component Browser] ./node_modules/@nodelib/fs.scandir/out/settings.js [Client Component Browser] ./node_modules/@nodelib/fs.scandir/out/index.js [Client Component Browser] ./node_modules/@nodelib/fs.walk/out/settings.js [Client Component Browser] ./node_modules/@nodelib/fs.walk/out/index.js [Client Component Browser] ./node_modules/tailwindcss/node_modules/fast-glob/out/readers/sync.js [Client Component Browser] ./node_modules/tailwindcss/node_modules/fast-glob/out/providers/sync.js [Client Component Browser] ./node_modules/tailwindcss/node_modules/fast-glob/out/index.js [Client Component Browser] ./node_modules/tailwindcss/lib/lib/content.js [Client Component Browser] ./node_modules/tailwindcss/lib/lib/setupTrackingContext.js [Client Component Browser] ./node_modules/tailwindcss/lib/plugin.js [Client Component Browser] ./node_modules/tailwindcss/lib/index.js [Client Component Browser] ./src/app/globals.css [Client Component Browser] ./src/app/layout.js [Server Component]"
+                - link "https://nextjs.org/docs/messages/module-not-found" [ref=e84] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/messages/module-not-found
+        - generic [ref=e85]: "1"
+        - generic [ref=e86]: "2"
+    - generic [ref=e91] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e92]:
+        - img [ref=e93]
+      - button "Open issues overlay" [ref=e97]:
+        - generic [ref=e98]:
+          - generic [ref=e99]: "0"
+          - generic [ref=e100]: "1"
+        - generic [ref=e101]: Issue
+  - alert [ref=e102]
+```

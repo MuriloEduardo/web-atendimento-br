@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { prisma } from '@/lib/prisma';
+import { verifyPassword, generateJWT, isValidEmail } from '@/lib/auth';
 
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
 
+    // Validações básicas
     if (!email || !password) {
       return NextResponse.json(
         { error: 'Email e senha são obrigatórios' },
@@ -12,33 +14,68 @@ export async function POST(request) {
       );
     }
 
+    // Validar formato do email
+    if (!isValidEmail(email)) {
+      return NextResponse.json(
+        { error: 'Email inválido' },
+        { status: 400 }
+      );
+    }
+
     // Buscar usuário por email
-    const user = db.getUserByEmail(email);
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        password: true,
+        isEmailVerified: true,
+        profileComplete: true,
+        onboardingComplete: true,
+        subscriptionStatus: true,
+        plan: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Usuário não encontrado' },
+        { error: 'Email ou senha incorretos' },
         { status: 401 }
       );
     }
 
-    // Verificar senha (em produção seria com hash)
-    if (user.password !== password) {
+    // Verificar senha
+    const isPasswordValid = await verifyPassword(password, user.password);
+    if (!isPasswordValid) {
       return NextResponse.json(
-        { error: 'Senha incorreta' },
+        { error: 'Email ou senha incorretos' },
         { status: 401 }
       );
     }
 
-    // Gerar token mock (em produção seria JWT real)
-    const token = `mock_token_${user.id}_${Date.now()}`;
+    // Gerar JWT token
+    const token = generateJWT({
+      userId: user.id,
+      email: user.email,
+      name: user.name
+    });
 
-    // Retornar dados do usuário sem a senha
+    // Remover senha dos dados retornados
     const { password: _, ...userWithoutPassword } = user;
+
+    // Atualizar último login (opcional)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { updatedAt: new Date() }
+    });
 
     return NextResponse.json({
       token,
-      user: userWithoutPassword
+      user: userWithoutPassword,
+      message: 'Login realizado com sucesso'
     });
 
   } catch (error) {

@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  name              String
+  password          String
+  isEmailVerified   Boolean  @default(false)
+  emailVerificationToken String?
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
+  phoneNumber       String?
+  businessName      String?
+  businessType      String?
+  website           String?
+  profileComplete   Boolean  @default(false)
+  onboardingComplete Boolean @default(false)
+  subscriptionStatus String  @default("inactive")
+  plan              String?
+  stripeCustomerId  String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("users")
+}

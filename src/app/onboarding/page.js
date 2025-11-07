@@ -20,6 +20,13 @@ const ONBOARDING_STEPS = [
     component: 'BusinessInfoStep'
   },
   {
+    id: 'subscription',
+    title: 'Escolha seu Plano',
+    subtitle: 'Finalize sua assinatura para liberar o acesso',
+    description: 'Selecione o plano ideal e conclua o pagamento para utilizar o Atendimento BR.',
+    component: 'SubscriptionStep'
+  },
+  {
     id: 'whatsapp-number',
     title: 'Número do WhatsApp',
     subtitle: 'Escolha como quer usar o WhatsApp',
@@ -39,13 +46,6 @@ const ONBOARDING_STEPS = [
     subtitle: 'Como você quer que funcione',
     description: 'Vamos configurar as primeiras automações do seu atendimento.',
     component: 'AutomationSetupStep'
-  },
-  {
-    id: 'subscription',
-    title: 'Escolha seu Plano',
-    subtitle: 'Finalize sua assinatura para liberar o acesso',
-    description: 'Selecione o plano ideal e conclua o pagamento para utilizar o Atendimento BR.',
-    component: 'SubscriptionStep'
   }
 ];
 
@@ -64,10 +64,10 @@ const FAQ = ({ faqs, title = "Dúvidas frequentes" }) => {
               className="w-full px-4 py-3 text-left flex justify-between items-center hover:bg-gray-50"
             >
               <span className="text-sm font-medium">{faq.question}</span>
-              <svg 
+              <svg
                 className={`h-4 w-4 text-gray-500 transition-transform ${openFaq === index ? 'rotate-180' : ''}`}
-                fill="none" 
-                viewBox="0 0 24 24" 
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -111,7 +111,7 @@ const WelcomeStep = ({ onNext }) => {
       <div className="text-center space-y-4">
         <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-lime-100">
           <svg className="h-8 w-8 text-lime-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.479 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-2.462-.96-4.779-2.705-6.526-1.747-1.746-4.066-2.711-6.533-2.713-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.099-.634zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.510l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.479 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-2.462-.96-4.779-2.705-6.526-1.747-1.746-4.066-2.711-6.533-2.713-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.099-.634zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.510l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
           </svg>
         </div>
         <div>
@@ -119,11 +119,11 @@ const WelcomeStep = ({ onNext }) => {
             Vamos automatizar seu WhatsApp!
           </h3>
           <p className="text-gray-600 mt-2">
-            Você está a poucos passos de ter um atendimento automático que funciona 24 horas por dia, 
+            Você está a poucos passos de ter um atendimento automático que funciona 24 horas por dia,
             responde seus clientes na hora e ainda aumenta suas vendas.
           </p>
         </div>
-        
+
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-start">
             <svg className="h-5 w-5 text-green-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -136,7 +136,7 @@ const WelcomeStep = ({ onNext }) => {
           </div>
         </div>
       </div>
-      
+
       <button
         onClick={onNext}
         className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -146,7 +146,7 @@ const WelcomeStep = ({ onNext }) => {
       >
         Vamos começar! 🚀
       </button>
-      
+
       <FAQ faqs={faqs} />
     </div>
   );
@@ -168,7 +168,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
   ];
 
   const customerRanges = [
-    'Até 50 por mês', '50-200 por mês', '200-500 por mês', 
+    'Até 50 por mês', '50-200 por mês', '200-500 por mês',
     '500-1000 por mês', 'Mais de 1000 por mês'
   ];
 
@@ -194,7 +194,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       const payload = {
         businessName: businessInfo.companyName,
@@ -202,7 +202,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
         website: businessInfo.currentWhatsApp ? `https://wa.me/${businessInfo.currentWhatsApp.replace(/\D/g, '')}` : null,
         phoneNumber: businessInfo.currentWhatsApp
       };
-      
+
       const response = await fetch('/api/onboarding/business-info', {
         method: 'POST',
         headers: {
@@ -211,14 +211,14 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
         },
         body: JSON.stringify(payload)
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Erro ao salvar:', errorData);
         alert('Erro ao salvar informações: ' + (errorData.error || 'Erro desconhecido'));
         return;
       }
-      
+
       onNext();
     } catch (error) {
       console.error('Erro ao salvar informações da empresa:', error);
@@ -243,7 +243,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
             placeholder="Ex: Loja da Maria, Clínica Beleza, etc."
           />
         </div>
-        
+
         <div>
           <label htmlFor="businessType" className="block text-sm font-medium mb-2">
             Que tipo de negócio você tem? *
@@ -261,7 +261,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
             ))}
           </select>
         </div>
-        
+
         <div>
           <label htmlFor="monthlyCustomers" className="block text-sm font-medium mb-2">
             Quantos clientes você atende por mês no WhatsApp? *
@@ -279,7 +279,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
             ))}
           </select>
         </div>
-        
+
         <div>
           <label htmlFor="currentWhatsApp" className="block text-sm font-medium mb-2">
             Qual número você usa hoje para atendimento?
@@ -296,7 +296,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
             Pode deixar em branco se ainda não tem um número específico
           </p>
         </div>
-        
+
         <div>
           <label htmlFor="mainGoal" className="block text-sm font-medium mb-2">
             Qual seu principal objetivo? *
@@ -315,7 +315,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
           </select>
         </div>
       </div>
-      
+
       <div className="flex space-x-4">
         <button
           type="button"
@@ -334,7 +334,7 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
           Continuar
         </button>
       </div>
-      
+
       <FAQ faqs={faqs} />
     </form>
   );
@@ -344,7 +344,14 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
 const WhatsAppNumberStep = ({ onNext, onBack }) => {
   const [numberChoice, setNumberChoice] = useState('');
   const [purchaseChoice, setPurchaseChoice] = useState('');
-  
+  const [showNumberSelector, setShowNumberSelector] = useState(false);
+  const [localidades, setLocalidades] = useState({});
+  const [selectedAreaLocal, setSelectedAreaLocal] = useState('');
+  const [availableNumbers, setAvailableNumbers] = useState([]);
+  const [selectedNumber, setSelectedNumber] = useState(null);
+  const [loadingNumbers, setLoadingNumbers] = useState(false);
+  const [purchasingNumber, setPurchasingNumber] = useState(false);
+
   const faqs = [
     {
       question: "Qual a diferença entre usar meu número atual e um número novo?",
@@ -360,17 +367,98 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
     },
     {
       question: "Quanto custa um número novo?",
-      answer: "Números nacionais custam em média R$ 50-80/mês. Podemos incluir na sua fatura ou você pode comprar diretamente. Te mostraremos todas as opções disponíveis."
+      answer: "Números nacionais custam em média R$ 26,30/mês. Incluímos o valor na sua fatura mensal. Super acessível!"
     },
     {
       question: "Posso escolher o número?",
-      answer: "Sim! Você pode escolher entre números disponíveis na sua região ou com terminações específicas (quando disponível)."
+      answer: "Sim! Você pode escolher entre centenas de números disponíveis na sua região."
     }
   ];
 
+  // Carregar localidades ao selecionar "we-buy"
+  useEffect(() => {
+    if (purchaseChoice === 'we-buy') {
+      loadLocalidades();
+    }
+  }, [purchaseChoice]);
+
+  const loadLocalidades = async () => {
+    try {
+      const response = await fetch('/api/brdid/localidades');
+      const data = await response.json();
+      if (data.success) {
+        setLocalidades(data.data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar localidades:', error);
+    }
+  };
+
+  const loadNumbers = async (areaLocal) => {
+    setLoadingNumbers(true);
+    try {
+      const response = await fetch(`/api/brdid/numeros?areaLocal=${areaLocal}&limit=50`);
+      const data = await response.json();
+      if (data.success) {
+        setAvailableNumbers(data.data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar números:', error);
+    } finally {
+      setLoadingNumbers(false);
+    }
+  };
+
+  const handleAreaLocalChange = (e) => {
+    const areaLocal = e.target.value;
+    setSelectedAreaLocal(areaLocal);
+    setSelectedNumber(null);
+    if (areaLocal) {
+      loadNumbers(areaLocal);
+    } else {
+      setAvailableNumbers([]);
+    }
+  };
+
+  const handlePurchaseNumber = async () => {
+    if (!selectedNumber) {
+      alert('Por favor, selecione um número');
+      return;
+    }
+
+    setPurchasingNumber(true);
+    try {
+      const response = await fetch('/api/brdid/adquirir', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          codigo: selectedNumber.codigo,
+          areaLocal: selectedAreaLocal,
+          cn: selectedNumber.cn
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert(`Número ${data.data.numeroCompleto} adquirido com sucesso!`);
+        onNext();
+      } else {
+        alert('Erro ao adquirir número: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Erro ao adquirir número:', error);
+      alert('Erro ao adquirir número. Tente novamente.');
+    } finally {
+      setPurchasingNumber(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!numberChoice) {
       alert('Por favor, escolha uma opção para o número do WhatsApp');
       return;
@@ -380,7 +468,13 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
       alert('Por favor, escolha como quer adquirir o número novo');
       return;
     }
-    
+
+    // Se escolheu "we-buy", mostrar seletor de números
+    if (numberChoice === 'new' && purchaseChoice === 'we-buy') {
+      setShowNumberSelector(true);
+      return;
+    }
+
     try {
       await fetch('/api/onboarding/whatsapp-number', {
         method: 'POST',
@@ -396,6 +490,119 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
     }
   };
 
+  if (showNumberSelector) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowNumberSelector(false)}
+            className="text-sm text-gray-600 hover:text-gray-800 mb-4"
+          >
+            ← Voltar para opções
+          </button>
+
+          <h4 className="text-lg font-medium mb-4">
+            Escolha seu número WhatsApp
+          </h4>
+
+          <div className="space-y-4">
+            {/* Seletor de UF/Localidade */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Selecione sua região:
+              </label>
+              <select
+                value={selectedAreaLocal}
+                onChange={handleAreaLocalChange}
+                className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+              >
+                <option value="">Escolha uma localidade...</option>
+                {Object.entries(localidades).map(([uf, locs]) => (
+                  <optgroup key={uf} label={uf || 'Outros'}>
+                    {locs.map(loc => (
+                      <option key={loc.areaLocal} value={loc.areaLocal}>
+                        {loc.localidade} (DDD {loc.cn}) - R$ {loc.valorMensal.toFixed(2)}/mês
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+
+            {/* Lista de números disponíveis */}
+            {loadingNumbers && (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                <p className="mt-2 text-sm text-gray-600">Carregando números disponíveis...</p>
+              </div>
+            )}
+
+            {!loadingNumbers && availableNumbers.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Números disponíveis ({availableNumbers.length}):
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-96 overflow-y-auto border rounded-lg p-4">
+                  {availableNumbers.map(num => (
+                    <button
+                      key={num.codigo}
+                      type="button"
+                      onClick={() => setSelectedNumber(num)}
+                      className={`p-3 border rounded-md text-sm font-mono hover:border-green-500 transition-colors ${selectedNumber?.codigo === num.codigo
+                          ? 'border-green-600 bg-green-50'
+                          : 'border-gray-300'
+                        } ${num.gold || num.superGold || num.diamante ? 'bg-yellow-50' : ''}`}
+                    >
+                      {num.numeroCompleto}
+                      {(num.gold || num.superGold || num.diamante) && (
+                        <span className="block text-xs text-yellow-600 mt-1">
+                          {num.diamante ? '💎' : num.superGold ? '⭐⭐' : '⭐'}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+
+                {selectedNumber && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h5 className="font-medium">Número selecionado:</h5>
+                    <p className="text-lg font-mono mt-1">{selectedNumber.numeroCompleto}</p>
+                    <div className="mt-2 text-sm text-gray-600">
+                      <p>Instalação: R$ {selectedNumber.valorInstalacao.toFixed(2)}</p>
+                      <p>Mensalidade: R$ {selectedNumber.valorMensal.toFixed(2)}/mês</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex space-x-4">
+          <button
+            type="button"
+            onClick={() => setShowNumberSelector(false)}
+            className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            onClick={handlePurchaseNumber}
+            disabled={!selectedNumber || purchasingNumber}
+            className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            style={{ backgroundColor: selectedNumber && !purchasingNumber ? '#25d366' : undefined }}
+            onMouseEnter={(e) => selectedNumber && !purchasingNumber && (e.target.style.backgroundColor = '#1da651')}
+            onMouseLeave={(e) => selectedNumber && !purchasingNumber && (e.target.style.backgroundColor = '#25d366')}
+          >
+            {purchasingNumber ? 'Adquirindo...' : 'Adquirir Número'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-6">
@@ -403,7 +610,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
           <h4 className="text-lg font-medium mb-4">
             Como você quer usar o WhatsApp?
           </h4>
-          
+
           <div className="space-y-4">
             <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
               <label className="flex items-start space-x-3 cursor-pointer">
@@ -427,14 +634,14 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                   </p>
                   <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mt-3">
                     <p className="text-sm text-yellow-800">
-                      <strong>⚠️ Importante:</strong> Não poderemos usar a API oficial do WhatsApp. 
+                      <strong>⚠️ Importante:</strong> Não poderemos usar a API oficial do WhatsApp.
                       Algumas funcionalidades avançadas podem não estar disponíveis.
                     </p>
                   </div>
                 </div>
               </label>
             </div>
-            
+
             <div className="border-2 border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
@@ -457,7 +664,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                   </p>
                   <div className="bg-lime-50 border border-lime-200 rounded-md p-3 mt-3">
                     <p className="text-sm text-lime-800">
-                      <strong>✅ Vantagens:</strong> API oficial, todas as funcionalidades, 
+                      <strong>✅ Vantagens:</strong> API oficial, todas as funcionalidades,
                       relatórios completos, integração total com Meta Business.
                     </p>
                   </div>
@@ -472,7 +679,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
             <h4 className="text-lg font-medium mb-4">
               Como quer adquirir o número?
             </h4>
-            
+
             <div className="space-y-3">
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
@@ -486,12 +693,12 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                 <div>
                   <span className="font-medium">Vocês compram para mim</span>
                   <p className="text-sm">
-                    Nós cuidamos de tudo e incluímos o valor na sua fatura mensal. 
+                    Nós cuidamos de tudo e incluímos o valor na sua fatura mensal (R$ 26,30/mês).
                     Mais prático e sem burocracia.
                   </p>
                 </div>
               </label>
-              
+
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="radio"
@@ -504,7 +711,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
                 <div>
                   <span className="font-medium">Eu mesmo compro</span>
                   <p className="text-sm">
-                    Você escolhe e compra o número diretamente com a operadora. 
+                    Você escolhe e compra o número diretamente com a operadora.
                     Te ajudamos com todo o processo.
                   </p>
                 </div>
@@ -513,7 +720,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
           </div>
         )}
       </div>
-      
+
       <div className="flex space-x-4">
         <button
           type="button"
@@ -532,7 +739,7 @@ const WhatsAppNumberStep = ({ onNext, onBack }) => {
           Continuar
         </button>
       </div>
-      
+
       <FAQ faqs={faqs} />
     </form>
   );
@@ -546,7 +753,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
     whoManages: '',
     needsHelp: true
   });
-  
+
   const faqs = [
     {
       question: "O que é o Meta Business?",
@@ -572,12 +779,12 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!metaBusinessInfo.knowsMetaBusiness) {
       alert('Por favor, nos diga se você conhece o Meta Business');
       return;
     }
-    
+
     try {
       await fetch('/api/onboarding/meta-business', {
         method: 'POST',
@@ -612,7 +819,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
           <h4 className="text-lg font-medium mb-4">
             Você conhece o Meta Business (antigo Facebook Business)?
           </h4>
-          
+
           <div className="space-y-3">
             <label className="flex items-start space-x-3 cursor-pointer">
               <input
@@ -628,7 +835,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                 <p className="text-sm">Já tenho conta e sei como funciona</p>
               </div>
             </label>
-            
+
             <label className="flex items-start space-x-3 cursor-pointer">
               <input
                 type="radio"
@@ -643,7 +850,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                 <p className="text-sm">Sei que existe mas preciso de ajuda</p>
               </div>
             </label>
-            
+
             <label className="flex items-start space-x-3 cursor-pointer">
               <input
                 type="radio"
@@ -666,7 +873,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
             <h4 className="text-lg font-medium mb-4">
               Quem cuida do Meta Business da sua empresa?
             </h4>
-            
+
             <div className="space-y-3">
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
@@ -682,7 +889,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   <p className="text-sm">Tenho acesso e sei mexer</p>
                 </div>
               </label>
-              
+
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="radio"
@@ -697,7 +904,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   <p className="text-sm">Tenho alguém da equipe que mexe nisso</p>
                 </div>
               </label>
-              
+
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="radio"
@@ -712,7 +919,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
                   <p className="text-sm">Terceirizei essa parte</p>
                 </div>
               </label>
-              
+
               <label className="flex items-start space-x-3 cursor-pointer">
                 <input
                   type="radio"
@@ -743,7 +950,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="flex space-x-4">
         <button
           type="button"
@@ -752,7 +959,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
         >
           Voltar
         </button>
-                <button
+        <button
           type="submit"
           className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           style={{ backgroundColor: '#25d366' }}
@@ -762,7 +969,7 @@ const MetaBusinessStep = ({ onNext, onBack }) => {
           Continuar
         </button>
       </div>
-      
+
       <FAQ faqs={faqs} />
     </form>
   );
@@ -779,10 +986,10 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
     humanHandoff: true,
     notifications: true
   });
-  
+
   const [isCompleting, setIsCompleting] = useState(false);
   const router = useRouter();
-  
+
   const faqs = [
     {
       question: "Como funciona o atendimento fora do horário?",
@@ -805,7 +1012,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsCompleting(true);
-    
+
     try {
       // Salvar configurações da automação
       await fetch('/api/onboarding/automation-setup', {
@@ -816,7 +1023,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
         },
         body: JSON.stringify(automationConfig)
       });
-      
+
       // Completar onboarding
       await fetch('/api/onboarding/complete', {
         method: 'POST',
@@ -824,12 +1031,12 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      
+
       // Redirecionar para dashboard
       setTimeout(() => {
         router.push('/dashboard');
       }, 2000);
-      
+
     } catch (error) {
       console.error('Erro ao completar onboarding:', error);
       setIsCompleting(false);
@@ -850,7 +1057,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
             Configuração concluída com sucesso!
           </p>
           <p className="text-sm text-gray-500 mt-2">
-            Nossa equipe começará a configurar seu WhatsApp automatizado. 
+            Nossa equipe começará a configurar seu WhatsApp automatizado.
             Você receberá um email com os próximos passos.
           </p>
         </div>
@@ -867,7 +1074,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
           <h4 className="text-lg font-medium mb-4">
             Como quer que funcione o atendimento?
           </h4>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">
@@ -905,7 +1112,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
           <h4 className="text-lg font-medium">
             Funcionalidades que quer ativar:
           </h4>
-          
+
           <div className="space-y-3">
             <label className="flex items-start space-x-3">
               <input
@@ -919,7 +1126,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 <p className="text-sm">Cumprimentar automaticamente novos clientes</p>
               </div>
             </label>
-            
+
             <label className="flex items-start space-x-3">
               <input
                 type="checkbox"
@@ -932,7 +1139,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 <p className="text-sm">Responder perguntas frequentes automaticamente</p>
               </div>
             </label>
-            
+
             <label className="flex items-start space-x-3">
               <input
                 type="checkbox"
@@ -945,7 +1152,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
                 <p className="text-sm">Passar para atendente quando necessário</p>
               </div>
             </label>
-            
+
             <label className="flex items-start space-x-3">
               <input
                 type="checkbox"
@@ -960,7 +1167,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
             </label>
           </div>
         </div>
-        
+
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-start">
             <svg className="h-5 w-5 text-green-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -978,7 +1185,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="flex space-x-4">
         <button
           type="button"
@@ -994,7 +1201,7 @@ const AutomationSetupStep = ({ onNext, onBack }) => {
           Finalizar Configuração! 🚀
         </button>
       </div>
-      
+
       <FAQ faqs={faqs} />
     </form>
   );
@@ -1130,11 +1337,10 @@ const SubscriptionStep = ({ onNext, onBack }) => {
             key={plan.id}
             type="button"
             onClick={() => handlePlanSelect(plan.id)}
-            className={`relative text-left border-2 rounded-lg p-6 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500 ${
-              selectedPlan === plan.id
+            className={`relative text-left border-2 rounded-lg p-6 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500 ${selectedPlan === plan.id
                 ? 'border-green-500 bg-green-50'
                 : 'border-gray-200 hover:border-gray-300'
-            } ${plan.recommended ? 'ring-2 ring-green-500' : ''}`}
+              } ${plan.recommended ? 'ring-2 ring-green-500' : ''}`}
           >
             {plan.recommended && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -1169,11 +1375,10 @@ const SubscriptionStep = ({ onNext, onBack }) => {
             </ul>
 
             <div className="text-center">
-              <div className={`w-6 h-6 rounded-full border-2 mx-auto ${
-                selectedPlan === plan.id
+              <div className={`w-6 h-6 rounded-full border-2 mx-auto ${selectedPlan === plan.id
                   ? 'bg-green-500 border-green-500'
                   : 'border-gray-300'
-              }`}>
+                }`}>
                 {selectedPlan === plan.id && (
                   <svg className="w-4 h-4 text-white m-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -1223,8 +1428,8 @@ const SubscriptionStep = ({ onNext, onBack }) => {
           {isLoading ? 'Redirecionando...' : 'Confirmar assinatura e pagar 🚀'}
         </button>
       </div>
-      
-  <FAQ faqs={faqs} title="Dúvidas sobre planos e pagamento" />
+
+      <FAQ faqs={faqs} title="Dúvidas sobre planos e pagamento" />
     </div>
   );
 };
@@ -1296,7 +1501,7 @@ export default function Onboarding() {
   const goToNext = () => {
     const newCompletedSteps = [...completedSteps, currentStep];
     setCompletedSteps(newCompletedSteps);
-    
+
     // Se é o último step (SubscriptionStep), redirecionar para dashboard
     if (currentStep === ONBOARDING_STEPS.length - 1) {
       // Completar onboarding e redirecionar
@@ -1382,8 +1587,8 @@ export default function Onboarding() {
         {/* Progress bar */}
         <div className="mb-8">
           <div className="bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+            <div
+              className="bg-green-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${((currentStep + 1) / ONBOARDING_STEPS.length) * 100}%` }}
             ></div>
           </div>
@@ -1404,7 +1609,7 @@ export default function Onboarding() {
               {currentStepData.description}
             </p>
           </div>
-          
+
           {renderStepComponent()}
         </div>
       </div>

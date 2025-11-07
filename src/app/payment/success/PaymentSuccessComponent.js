@@ -9,7 +9,6 @@ export default function PaymentSuccessComponent() {
   const router = useRouter();
   const [status, setStatus] = useState('loading');
   const [paymentDetails, setPaymentDetails] = useState(null);
-  const [completionSent, setCompletionSent] = useState(false);
   const [activationStatus, setActivationStatus] = useState('idle');
   const [activationError, setActivationError] = useState('');
 
@@ -97,44 +96,16 @@ export default function PaymentSuccessComponent() {
   }, [status, paymentDetails, activationStatus]);
 
   useEffect(() => {
-    if (status !== 'succeeded' || completionSent || activationStatus !== 'success') {
-      if (status === 'succeeded' && completionSent) {
-        console.log('[PaymentSuccess] onboarding completion already sent');
-      }
-      return;
+    // Não completar onboarding aqui - ainda há etapas de configuração
+    // O onboarding só será concluído após configurar WhatsApp e automações
+    if (status === 'succeeded' && activationStatus === 'success') {
+      console.log('[PaymentSuccess] Pagamento confirmado - usuário deve continuar configuração');
     }
-
-    const completeOnboarding = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        console.log('[PaymentSuccess] completing onboarding', { tokenPresent: Boolean(token) });
-        if (!token) {
-          return;
-        }
-
-        const response = await fetch('/api/onboarding/complete', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          console.log('[PaymentSuccess] onboarding completion success');
-          setCompletionSent(true);
-        } else {
-          console.warn('Não foi possível marcar onboarding como completo após pagamento.');
-        }
-      } catch (error) {
-        console.error('Erro ao concluir onboarding após pagamento:', error);
-      }
-    };
-
-    completeOnboarding();
-  }, [status, completionSent, activationStatus]);
+  }, [status, activationStatus]);
 
   const redirectToDashboard = () => {
-    router.push('/dashboard');
+    // Após pagamento, continuar onboarding no step de WhatsApp
+    router.push('/onboarding?step=whatsapp-number');
   };
 
   const retryActivation = () => {
@@ -172,10 +143,10 @@ export default function PaymentSuccessComponent() {
             Seu pagamento está sendo processado. Você receberá um email de confirmação em breve.
           </p>
           <button
-            onClick={redirectToDashboard}
+            onClick={() => router.push('/onboarding?step=whatsapp-number')}
             className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
           >
-            Ir para Dashboard
+            Continuar Configuração
           </button>
         </div>
       </div>
@@ -214,25 +185,49 @@ export default function PaymentSuccessComponent() {
 
   // status === 'succeeded'
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
-        <div className="text-green-500 text-6xl mb-4">✅</div>
-        <h2 className="text-2xl font-bold mb-2">
-          Pagamento Confirmado!
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center py-12 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-2xl w-full">
+        {/* Ícone de sucesso animado */}
+        <div className="mb-6">
+          <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
+            <div className="text-green-500 text-5xl animate-bounce">✅</div>
+          </div>
+        </div>
+
+        {/* Título principal */}
+        <h2 className="text-3xl font-bold mb-3 text-gray-900">
+          🎉 Pagamento Confirmado!
         </h2>
-        <p className="text-gray-600 mb-6">
-          {activationStatus === 'success'
-            ? 'Sua assinatura foi ativada com sucesso. Bem-vindo ao AtendimentoBR!'
-            : 'Pagamento confirmado. Estamos finalizando a ativação da sua assinatura.'}
-        </p>
+
+        <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+          <p className="text-lg font-semibold text-green-800 mb-2">
+            Sua assinatura está ativa!
+          </p>
+          <p className="text-green-700">
+            {activationStatus === 'success'
+              ? 'Agora vamos configurar seu WhatsApp Business e suas automações para você começar a atender seus clientes!'
+              : 'Estamos finalizando a ativação da sua conta. Em breve você poderá começar!'}
+          </p>
+        </div>
 
         {paymentDetails && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-left">
-            <h3 className="font-medium text-green-900 mb-2">Detalhes do Pagamento:</h3>
-            <div className="space-y-1 text-sm text-green-800">
-              <p><strong>ID:</strong> {paymentDetails.id}</p>
-              <p><strong>Valor:</strong> R$ {(paymentDetails.amount / 100).toFixed(2)}</p>
-              <p><strong>Status:</strong> Confirmado</p>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 text-left">
+            <h3 className="font-medium text-gray-900 mb-3 text-center">📋 Detalhes do Pagamento</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">ID da Transação:</span>
+                <span className="font-mono text-xs text-gray-800">{paymentDetails.id}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Valor Pago:</span>
+                <span className="font-bold text-green-600">R$ {(paymentDetails.amount / 100).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Status:</span>
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  ✓ Confirmado
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -256,35 +251,58 @@ export default function PaymentSuccessComponent() {
           </div>
         )}
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           <button
             onClick={redirectToDashboard}
-            className="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors font-medium"
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            🚀 Acessar Dashboard
+            ✨ Continuar Configuração →
           </button>
-          <p className="text-xs text-gray-500">
-            Você receberá um email de confirmação em breve.
+          <p className="text-sm text-gray-500">
+            Seu acesso foi liberado! Vamos configurar tudo agora.
           </p>
         </div>
 
         {/* Próximos passos */}
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <h3 className="font-medium mb-3">Próximos Passos:</h3>
-          <div className="text-left space-y-2 text-sm">
-            <div className="flex items-center">
-              <span className="text-green-500 mr-2">1.</span>
-              Configure sua primeira automação
+          <h3 className="font-semibold text-lg mb-4 text-gray-900">🚀 Próximas Etapas</h3>
+          <div className="text-left space-y-3">
+            <div className="flex items-start bg-gray-50 p-3 rounded-lg">
+              <span className="text-green-500 mr-3 mt-0.5 font-bold">✓</span>
+              <div className="flex-1">
+                <span className="text-gray-400 line-through block">Escolher plano e realizar pagamento</span>
+                <span className="text-xs text-gray-500">Concluído com sucesso</span>
+              </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-green-500 mr-2">2.</span>
-              Conecte seu WhatsApp Business
+            <div className="flex items-start bg-green-50 border-2 border-green-200 p-3 rounded-lg">
+              <span className="text-green-600 mr-3 mt-0.5 font-bold">→</span>
+              <div className="flex-1">
+                <span className="font-semibold text-green-900 block">Configurar número do WhatsApp</span>
+                <span className="text-xs text-green-700">Próximo passo - escolha ou compre seu número</span>
+              </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-green-500 mr-2">3.</span>
-              Comece a receber leads automaticamente
+            <div className="flex items-start bg-gray-50 p-3 rounded-lg">
+              <span className="text-gray-400 mr-3 mt-0.5">3</span>
+              <div className="flex-1">
+                <span className="text-gray-600 block">Conectar Meta Business API</span>
+                <span className="text-xs text-gray-500">Vincular sua conta do WhatsApp Business</span>
+              </div>
+            </div>
+            <div className="flex items-start bg-gray-50 p-3 rounded-lg">
+              <span className="text-gray-400 mr-3 mt-0.5">4</span>
+              <div className="flex-1">
+                <span className="text-gray-600 block">Configurar suas automações</span>
+                <span className="text-xs text-gray-500">Definir mensagens automáticas e regras</span>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Nota de email */}
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm text-blue-800">
+            📧 Você receberá um email de confirmação com todos os detalhes da sua assinatura.
+          </p>
         </div>
       </div>
     </div>

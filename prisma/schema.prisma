@@ -58,6 +58,14 @@ model Company {
   whatsappNumber    String?
   whatsappVerified  Boolean  @default(false)
   
+  // BRDID Integration (Phone Number)
+  brdidNumber       String?
+  brdidNumberId     String?
+  brdidAreaLocal    String?
+  brdidCN           String?
+  numberPurchaseDate DateTime?
+  stripeProductId   String?
+  
   // Business Info
   registrationNumber String? // CNPJ/CPF
   registrationType  String? // PJ/PF

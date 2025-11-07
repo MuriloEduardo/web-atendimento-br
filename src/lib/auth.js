@@ -31,8 +31,8 @@ export function generateJWT(payload) {
   if (!secret) {
     throw new Error('JWT_SECRET não está definido nas variáveis de ambiente')
   }
-  
-  return jwt.sign(payload, secret, { 
+
+  return jwt.sign(payload, secret, {
     expiresIn: '7d' // Token válido por 7 dias
   })
 }
@@ -47,7 +47,7 @@ export function verifyJWT(token) {
   if (!secret) {
     throw new Error('JWT_SECRET não está definido nas variáveis de ambiente')
   }
-  
+
   return jwt.verify(token, secret)
 }
 
@@ -82,23 +82,23 @@ export function isValidEmail(email) {
  */
 export function validatePassword(password) {
   const errors = []
-  
+
   if (password.length < 8) {
     errors.push('Senha deve ter pelo menos 8 caracteres')
   }
-  
+
   if (!/[A-Z]/.test(password)) {
     errors.push('Senha deve conter pelo menos uma letra maiúscula')
   }
-  
+
   if (!/[a-z]/.test(password)) {
     errors.push('Senha deve conter pelo menos uma letra minúscula')
   }
-  
+
   if (!/[0-9]/.test(password)) {
     errors.push('Senha deve conter pelo menos um número')
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors

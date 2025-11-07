@@ -58,7 +58,7 @@ export default function Cadastro() {
       if (response.ok) {
         // Salvar token no localStorage
         localStorage.setItem('token', data.token);
-        
+
         // Usuário recém-cadastrado sempre vai para onboarding
         router.push('/onboarding');
       } else {
@@ -85,14 +85,14 @@ export default function Cadastro() {
             </Link>
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
               {error}
             </div>
           )}
-          
+
           <div className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium">
@@ -104,13 +104,13 @@ export default function Cadastro() {
                 type="text"
                 autoComplete="name"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Seu nome completo"
                 value={formData.name}
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium">
                 Email
@@ -121,13 +121,13 @@ export default function Cadastro() {
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="seu@email.com"
                 value={formData.email}
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium">
                 Senha
@@ -138,13 +138,13 @@ export default function Cadastro() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Pelo menos 6 caracteres"
                 value={formData.password}
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium">
                 Confirmar senha
@@ -155,7 +155,7 @@ export default function Cadastro() {
                 type="password"
                 autoComplete="new-password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Digite a senha novamente"
                 value={formData.confirmPassword}
                 onChange={handleChange}

@@ -22,11 +22,6 @@ const getStripeInstance = async () => {
 
 export async function POST(request) {
   try {
-    // Verificar se Stripe está configurado
-    if (!isStripeConfigured()) {
-      return NextResponse.json({ error: 'Stripe não configurado. Use o modo mock.' }, { status: 400 });
-    }
-
     // Verificar token de autenticação
     const authHeader = request.headers.get('authorization');
     const user = db.getUserFromToken(authHeader);
@@ -42,7 +37,21 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Plano inválido' }, { status: 400 });
     }
 
-  const plan = PLANS[planId];
+    const plan = PLANS[planId];
+
+    // Se Stripe não está configurado, retornar modo mock
+    if (!isStripeConfigured()) {
+      console.log('[Payment] Modo mock - Stripe não configurado');
+      return NextResponse.json({
+        clientSecret: `pi_test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        planName: plan.name,
+        amount: plan.price,
+        currency: plan.currency,
+        trial: trial,
+        mode: 'mock',
+        message: 'Modo de teste - Stripe não configurado'
+      });
+    }
 
     // Obter instância do Stripe
     const stripe = await getStripeInstance();
@@ -66,7 +75,8 @@ export async function POST(request) {
       planName: plan.name,
       amount: plan.price,
       currency: plan.currency,
-      trial: trial
+      trial: trial,
+      mode: 'production'
     });
 
   } catch (error) {

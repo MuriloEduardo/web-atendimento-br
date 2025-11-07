@@ -85,13 +85,15 @@ export async function POST(request) {
       data: {
         businessName: data.businessName,
         businessType: data.businessType,
-        website: data.website
+        website: data.website,
+        profileComplete: true  // Marcar perfil como completo
       },
       select: {
         id: true,
         businessName: true,
         businessType: true,
         website: true,
+        profileComplete: true,
         company: {
           select: {
             id: true,

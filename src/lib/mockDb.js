@@ -84,7 +84,7 @@ class MockDatabase {
       return Number.isFinite(numericId) ? Math.max(maxId, numericId) : maxId;
     }, 0);
 
-  const highestSubscriptionId = normalizedSubscriptions.reduce((maxId, subscription) => {
+    const highestSubscriptionId = normalizedSubscriptions.reduce((maxId, subscription) => {
       const numericId = Number(subscription.id);
       return Number.isFinite(numericId) ? Math.max(maxId, numericId) : maxId;
     }, 0);
@@ -201,7 +201,23 @@ class MockDatabase {
 
     const token = authHeader.replace('Bearer ', '');
 
-    // Extrair ID do usuário do token mock
+    // Tentar verificar JWT real primeiro
+    try {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production');
+
+      // Se JWT válido, buscar usuário pelo userId
+      if (decoded && decoded.userId) {
+        const user = this.getUserById(decoded.userId);
+        if (user) {
+          return user;
+        }
+      }
+    } catch (jwtError) {
+      // JWT inválido ou expirado, continuar com método mock
+    }
+
+    // Fallback: Extrair ID do usuário do token mock (legado)
     const parts = token.split('_');
     if (parts.length >= 3 && parts[0] === 'mock' && parts[1] === 'token') {
       const userId = parseInt(parts[2]);

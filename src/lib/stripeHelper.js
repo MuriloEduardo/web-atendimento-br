@@ -1,12 +1,24 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+let stripeInstance = null;
+
+const getStripeInstance = () => {
+  if (!stripeInstance && process.env.STRIPE_SECRET_KEY) {
+    stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+  return stripeInstance;
+};
 
 /**
  * Cria um novo customer no Stripe para a empresa
  */
 export async function createStripeCustomer(company) {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const customer = await stripe.customers.create({
       email: company.email || company.name,
       name: company.name,
@@ -29,6 +41,11 @@ export async function createStripeCustomer(company) {
  */
 export async function updateStripeCustomer(stripeCustomerId, updates) {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const customer = await stripe.customers.update(stripeCustomerId, updates);
     return customer;
   } catch (error) {
@@ -42,6 +59,11 @@ export async function updateStripeCustomer(stripeCustomerId, updates) {
  */
 export async function createStripeSubscription(stripeCustomerId, priceId) {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const subscription = await stripe.subscriptions.create({
       customer: stripeCustomerId,
       items: [{ price: priceId }],
@@ -61,6 +83,11 @@ export async function createStripeSubscription(stripeCustomerId, priceId) {
  */
 export async function getStripeSubscription(subscriptionId) {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     return subscription;
   } catch (error) {
@@ -74,6 +101,11 @@ export async function getStripeSubscription(subscriptionId) {
  */
 export async function cancelStripeSubscription(subscriptionId) {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const subscription = await stripe.subscriptions.del(subscriptionId);
     return subscription;
   } catch (error) {
@@ -87,6 +119,11 @@ export async function cancelStripeSubscription(subscriptionId) {
  */
 export async function updateStripeSubscription(subscriptionId, updates) {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const subscription = await stripe.subscriptions.update(subscriptionId, updates);
     return subscription;
   } catch (error) {
@@ -100,6 +137,11 @@ export async function updateStripeSubscription(subscriptionId, updates) {
  */
 export async function getStripePrices() {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const prices = await stripe.prices.list({ limit: 100 });
     return prices.data;
   } catch (error) {
@@ -113,6 +155,11 @@ export async function getStripePrices() {
  */
 export async function getStripeProduct(productId) {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const product = await stripe.products.retrieve(productId);
     return product;
   } catch (error) {
@@ -126,6 +173,11 @@ export async function getStripeProduct(productId) {
  */
 export async function createStripeInvoice(stripeCustomerId, items) {
   try {
+    const stripe = getStripeInstance();
+    if (!stripe) {
+      throw new Error('Stripe não está configurado');
+    }
+    
     const invoice = await stripe.invoices.create({
       customer: stripeCustomerId,
       collection_method: 'charge_automatically'

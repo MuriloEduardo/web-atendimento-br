@@ -56,8 +56,12 @@ export async function POST(request) {
       );
     }
 
-    // Verificar se empresa tem Stripe configurado
-    if (!user.company.stripeCustomerId || !user.company.paymentSetup) {
+    // Verificar se Stripe está configurado (apenas em produção)
+    // Em desenvolvimento, permitir completar onboarding sem Stripe
+    const isProduction = process.env.NODE_ENV === 'production';
+    const stripeEnabled = process.env.STRIPE_SECRET_KEY;
+    
+    if (isProduction && stripeEnabled && (!user.company.stripeCustomerId || !user.company.paymentSetup)) {
       return NextResponse.json(
         { error: 'Configure seu método de pagamento (Stripe) antes de completar o onboarding.' },
         { status: 409 }

@@ -1075,11 +1075,6 @@ const SubscriptionStep = ({ onNext, onBack }) => {
     setIsLoading(true);
 
     try {
-      if (!stripeEnabled) {
-        alert('Configure a integração com a Stripe para concluir sua assinatura.');
-        return;
-      }
-
       const token = localStorage.getItem('token');
 
       if (!token) {
@@ -1087,6 +1082,7 @@ const SubscriptionStep = ({ onNext, onBack }) => {
         return;
       }
 
+      // Ir para página de pagamento mesmo sem Stripe em dev
       router.push(`/payment/${selectedPlan}`);
     } catch (error) {
       console.error('Erro ao confirmar plano:', error);

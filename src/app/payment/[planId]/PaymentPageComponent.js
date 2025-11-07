@@ -221,7 +221,7 @@ export default function PaymentPageComponent({ params: initialParams }) {
         console.log('[PaymentPage] createPaymentIntent:success', data);
         if (cancelled) return;
         setClientSecret(data.clientSecret);
-  setPlanData((prev) => ({ ...(prev || {}), ...data }));
+        setPlanData((prev) => ({ ...(prev || {}), ...data }));
       } catch (err) {
         console.error('Erro:', err);
         if (!cancelled) {
@@ -315,7 +315,7 @@ export default function PaymentPageComponent({ params: initialParams }) {
             <h2 className="text-xl font-semibold mb-4">
               Resumo do Pedido
             </h2>
-            
+
             {hasSubscription && subscription ? (
               <div className="space-y-4">
                 <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -392,7 +392,7 @@ export default function PaymentPageComponent({ params: initialParams }) {
             <h2 className="text-xl font-semibold mb-4">
               Informações de Pagamento
             </h2>
-            
+
             {hasSubscription && subscription ? (
               <div className="p-4 bg-green-50 border border-green-200 text-sm text-green-700 rounded-lg">
                 {infoMessage || 'Assinatura ativa detectada.'}

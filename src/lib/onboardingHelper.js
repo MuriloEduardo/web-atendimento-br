@@ -60,9 +60,9 @@ export async function completeOnboardingStep(userId, step) {
     }
   });
 
-  const allComplete = user.profileComplete && 
-                     user.isEmailVerified && 
-                     user.subscriptionStatus !== 'inactive';
+  const allComplete = user.profileComplete &&
+    user.isEmailVerified &&
+    user.subscriptionStatus !== 'inactive';
 
   if (allComplete) {
     updates.onboardingComplete = true;

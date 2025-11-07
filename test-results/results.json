@@ -64,15 +64,10 @@
     }
   },
   "suites": [],
-  "errors": [
-    {
-      "message": "Error: Timed out waiting 120000ms from config.webServer.",
-      "stack": "Error: Timed out waiting 120000ms from config.webServer."
-    }
-  ],
+  "errors": [],
   "stats": {
-    "startTime": "2025-11-07T11:02:02.981Z",
-    "duration": 255126.99300000002,
+    "startTime": "2025-11-07T12:18:27.200Z",
+    "duration": 20254.46,
     "expected": 0,
     "skipped": 0,
     "unexpected": 0,

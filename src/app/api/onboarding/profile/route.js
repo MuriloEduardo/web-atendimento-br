@@ -17,17 +17,21 @@ export async function POST(request) {
 
     const data = await request.json();
 
+    // Construir objeto de dados apenas com campos não-vazios
+    const updateData = {
+      profileComplete: true
+    };
+
+    if (data.name) updateData.name = data.name;
+    if (data.phoneNumber) updateData.phoneNumber = data.phoneNumber;
+    if (data.businessName) updateData.businessName = data.businessName;
+    if (data.businessType) updateData.businessType = data.businessType;
+    if (data.website) updateData.website = data.website;
+
     // Atualizar perfil do usuário no onboarding
     const updatedUser = await prisma.user.update({
       where: { id: tokenUser.userId },
-      data: {
-        name: data.name || undefined,
-        phoneNumber: data.phoneNumber || undefined,
-        businessName: data.businessName || undefined,
-        businessType: data.businessType || undefined,
-        website: data.website || undefined,
-        profileComplete: true
-      },
+      data: updateData,
       select: {
         id: true,
         name: true,

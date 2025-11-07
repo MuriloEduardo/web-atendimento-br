@@ -20,10 +20,14 @@ model User {
   resetPasswordToken String?
   resetPasswordExpires DateTime?
   phoneNumber       String?
+  businessName      String?
+  businessType      String?
+  website           String?
   profileComplete   Boolean  @default(false)
   onboardingComplete Boolean @default(false)
   subscriptionStatus String  @default("inactive")
   plan              String?
+  stripeCustomerId  String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   

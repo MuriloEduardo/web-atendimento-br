@@ -52,14 +52,14 @@ export default function SubscriptionPage() {
         {
             id: 'starter',
             name: 'Starter',
-            price: 9900,
+            price: 9700,
             description: 'Perfeito para começar',
             features: ['1.000 mensagens/mês', 'Respostas automáticas', 'Chatbot básico', 'Suporte por email', 'Relatórios básicos']
         },
         {
             id: 'professional',
             name: 'Professional',
-            price: 29900,
+            price: 19700,
             description: 'Para empresas em crescimento',
             popular: true,
             features: ['5.000 mensagens/mês', 'Chatbot avançado com IA', 'Integração com CRM', 'Suporte prioritário', 'Relatórios avançados', 'Múltiplos números']
@@ -67,7 +67,7 @@ export default function SubscriptionPage() {
         {
             id: 'enterprise',
             name: 'Enterprise',
-            price: 59900,
+            price: 39700,
             description: 'Solução completa',
             features: ['Mensagens ilimitadas', 'IA personalizada', 'Integração completa', 'Suporte 24/7', 'Dashboard personalizado', 'API personalizada', 'White label']
         }
@@ -205,8 +205,8 @@ export default function SubscriptionPage() {
                                         <button
                                             onClick={() => router.push(`/payment/${plan.id}`)}
                                             className={`w-full py-3 rounded-lg font-semibold transition-colors ${plan.popular
-                                                    ? 'bg-green-600 text-white hover:bg-green-700'
-                                                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                                                ? 'bg-green-600 text-white hover:bg-green-700'
+                                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                                                 }`}
                                         >
                                             Escolher {plan.name}

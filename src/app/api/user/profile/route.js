@@ -29,8 +29,6 @@ export async function GET(request) {
         isEmailVerified: true,
         profileComplete: true,
         onboardingComplete: true,
-        subscriptionStatus: true,
-        plan: true,
         createdAt: true,
         updatedAt: true
       }
@@ -40,10 +38,7 @@ export async function GET(request) {
       return createAuthErrorResponse('Usuário não encontrado');
     }
 
-    return NextResponse.json({
-      user,
-      message: 'Perfil obtido com sucesso'
-    });
+    return NextResponse.json(user);
 
   } catch (error) {
     console.error('Erro ao buscar perfil:', error);
@@ -112,17 +107,12 @@ export async function PUT(request) {
         isEmailVerified: true,
         profileComplete: true,
         onboardingComplete: true,
-        subscriptionStatus: true,
-        plan: true,
         createdAt: true,
         updatedAt: true
       }
     });
 
-    return NextResponse.json({
-      user: updatedUser,
-      message: 'Perfil atualizado com sucesso'
-    });
+    return NextResponse.json(updatedUser);
 
   } catch (error) {
     console.error('Erro ao atualizar perfil:', error);

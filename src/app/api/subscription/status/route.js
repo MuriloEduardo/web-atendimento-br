@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
 import prisma from '@/lib/prisma';
-import { plans } from '@/lib/plans';
+import { PLANS } from '@/lib/plans';
 
 export async function GET(request) {
   try {
@@ -16,19 +16,22 @@ export async function GET(request) {
       return createAuthErrorResponse('Token inválido');
     }
 
-    // Buscar usuário e company com assinatura
+    // Buscar company do usuário
     const company = await prisma.company.findFirst({
       where: { ownerId: tokenUser.userId },
       select: {
         id: true,
-        subscriptionId: true,
-        subscriptionStartDate: true,
-        subscriptionEndDate: true,
-        trialEndDate: true
+        stripeSubscriptionId: true,
+        stripePriceId: true,
+        stripeCustomerId: true,
+        status: true,
+        paymentSetup: true,
+        createdAt: true,
+        updatedAt: true
       }
     });
 
-    if (!company || !company.subscriptionId) {
+    if (!company || !company.stripeSubscriptionId) {
       return NextResponse.json({
         hasSubscription: false,
         subscriptionStatus: 'inactive',
@@ -36,47 +39,21 @@ export async function GET(request) {
       });
     }
 
-    // Buscar assinatura no Stripe ou no banco
-    const subscription = await prisma.subscription.findUnique({
-      where: { id: company.subscriptionId },
-      select: {
-        id: true,
-        stripeSubscriptionId: true,
-        stripePriceId: true,
-        status: true,
-        currentPeriodStart: true,
-        currentPeriodEnd: true,
-        cancelAtPeriodEnd: true,
-        createdAt: true
-      }
-    });
-
-    if (!subscription) {
-      return NextResponse.json({
-        hasSubscription: false,
-        subscriptionStatus: 'inactive',
-        message: 'Assinatura não encontrada'
-      });
-    }
-
     // Determinar qual plano baseado no priceId
-    const currentPlan = Object.values(plans).find(
-      plan => plan.stripePriceId === subscription.stripePriceId
+    const currentPlan = Object.values(PLANS).find(
+      plan => plan.stripePriceId === company.stripePriceId
     );
 
     return NextResponse.json({
       hasSubscription: true,
       subscription: {
-        id: subscription.id,
-        stripeSubscriptionId: subscription.stripeSubscriptionId,
+        id: company.stripeSubscriptionId,
+        stripeSubscriptionId: company.stripeSubscriptionId,
         planId: currentPlan?.id || 'unknown',
         planName: currentPlan?.name || 'Desconhecido',
-        status: subscription.status,
-        currentPeriodStart: subscription.currentPeriodStart,
-        currentPeriodEnd: subscription.currentPeriodEnd,
-        cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-        trialEnd: company.trialEndDate,
-        createdAt: subscription.createdAt
+        status: company.status === 'active' ? 'active' : company.status,
+        paymentSetup: company.paymentSetup,
+        createdAt: company.createdAt
       }
     });
 

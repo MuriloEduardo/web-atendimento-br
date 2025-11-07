@@ -68,9 +68,10 @@ export async function POST(request) {
     // Obter instância do Stripe
     const stripe = await getStripeInstance();
 
-    // Criar sessão de checkout do Stripe
+    // Criar sessão de checkout do Stripe com UI embutida
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      ui_mode: 'embedded', // Modo embedded para checkout integrado
+      payment_method_types: ['card'], // Apenas cartões (Link requer ativação no dashboard)
       customer_email: user.email,
       line_items: [
         {
@@ -79,7 +80,6 @@ export async function POST(request) {
             product_data: {
               name: `Plano ${plan.name} - Atendimento BR`,
               description: `Automação WhatsApp - Plano ${plan.name}`,
-              images: ['https://your-domain.com/logo.png'], // Substitua pela URL do seu logo
             },
             unit_amount: plan.price,
             recurring: {
@@ -105,9 +105,8 @@ export async function POST(request) {
         },
       },
 
-      // URLs de redirecionamento
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/dashboard`,
+      // URL de retorno para modo embedded
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
 
       // Metadados para webhook
       metadata: {
@@ -124,8 +123,7 @@ export async function POST(request) {
     });
 
     return NextResponse.json({
-      sessionId: session.id,
-      url: session.url
+      clientSecret: session.client_secret
     });
 
   } catch (error) {

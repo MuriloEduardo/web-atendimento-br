@@ -1,5 +1,5 @@
-import PaymentPageComponent from './PaymentPageComponent';
+import PaymentPageWrapper from './PaymentPageWrapper';
 
 export default function PaymentPage({ params }) {
-  return <PaymentPageComponent params={params} />;
+  return <PaymentPageWrapper params={params} />;
 }

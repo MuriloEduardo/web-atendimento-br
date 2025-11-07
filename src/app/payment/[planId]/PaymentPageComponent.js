@@ -2,458 +2,233 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
-import CheckoutForm from './CheckoutForm';
-
-// Carregar Stripe fora do componente para evitar recriar
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
-
-const PLAN_DETAILS = {
-  starter: {
-    planName: 'Starter',
-    amount: 9700,
-    trial: false,
-    description: 'Perfeito para pequenos negócios',
-  },
-  professional: {
-    planName: 'Professional',
-    amount: 19700,
-    trial: false,
-    description: 'Ideal para empresas em crescimento',
-  },
-  enterprise: {
-    planName: 'Enterprise',
-    amount: 39700,
-    trial: false,
-    description: 'Solução completa para grandes empresas',
-  },
-};
+import EmbeddedCheckoutForm from '@/components/EmbeddedCheckoutForm';
+import { PLANS } from '@/lib/plans';
 
 export default function PaymentPageComponent({ params: initialParams }) {
-  const [clientSecret, setClientSecret] = useState('');
-  const [planData, setPlanData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [infoMessage, setInfoMessage] = useState('');
   const [hasSubscription, setHasSubscription] = useState(false);
-  const [subscription, setSubscription] = useState(null);
   const router = useRouter();
   const routeParams = useParams();
   const planId = routeParams?.planId || initialParams?.planId || '';
+  const planData = planId && PLANS[planId] ? PLANS[planId] : null;
 
   useEffect(() => {
-    if (planId) {
-      const fallback = PLAN_DETAILS[planId];
-      if (fallback) {
-        setPlanData((prev) => ({ ...fallback, ...(prev || {}) }));
-      }
-    }
-  }, [planId]);
-
-  useEffect(() => {
-    console.log('[PaymentPage] mount', {
-      planId,
-      publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      routeParams,
-      initialParams,
-    });
-  }, [planId, routeParams, initialParams]);
-
-  useEffect(() => {
-    if (!planId) {
-      console.warn('[PaymentPage] missing planId');
-      setError('Plano inválido ou não informado. Volte e selecione um plano.');
-      setLoading(false);
-      return;
-    }
-
-    if (!PLAN_DETAILS[planId]) {
-      console.warn('[PaymentPage] unknown planId', { planId });
-      setError('Plano não encontrado. Volte e selecione um plano válido.');
-      setLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    const resetState = () => {
-      setError('');
-      setInfoMessage('');
-      setHasSubscription(false);
-      setSubscription(null);
-      setClientSecret('');
-      setLoading(true);
-    };
-
-    resetState();
-
-    const preparePayment = async () => {
+    const checkSubscription = async () => {
       try {
         const token = localStorage.getItem('token');
-        console.log('[PaymentPage] createPaymentIntent:start', { planId, tokenPresent: Boolean(token) });
+        
         if (!token) {
-          setError('Você precisa estar logado para finalizar o pagamento. Faça login e tente novamente.');
+          setError('Você precisa estar logado para finalizar o pagamento.');
           setLoading(false);
           return;
         }
 
-        // Garantir que a empresa existe antes de criar payment intent
-        try {
-          const companyCheckResponse = await fetch('/api/company/current', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-
-          if (companyCheckResponse.status === 404) {
-            // Empresa não existe, criar uma empresa padrão
-            console.log('[PaymentPage] Company not found, creating default company');
-            const createCompanyResponse = await fetch('/api/onboarding/business-info', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                businessName: 'Minha Empresa',
-                businessType: 'Outros',
-                website: null
-              })
-            });
-
-            if (!createCompanyResponse.ok) {
-              console.error('[PaymentPage] Failed to create company');
-              setError('Erro ao configurar sua empresa. Por favor, volte e preencha os dados da empresa.');
-              setLoading(false);
-              return;
-            }
-          }
-        } catch (companyError) {
-          console.error('[PaymentPage] company check error', companyError);
-        }
-
-        // Verificar se usuário já possui assinatura ativa
-        try {
-          const statusResponse = await fetch('/api/subscription/status', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-
-          if (statusResponse.status === 401) {
-            if (cancelled) return;
-            localStorage.removeItem('token');
-            setError('Sua sessão expirou. Faça login novamente para continuar.');
-            setLoading(false);
-            setTimeout(() => router.push('/login'), 1000);
-            return;
-          }
-
-          if (statusResponse.ok) {
-            const statusData = await statusResponse.json();
-            console.log('[PaymentPage] subscriptionStatus', statusData);
-
-            if (statusData.hasSubscription) {
-              const currentStatus = statusData.subscription?.status;
-
-              if (currentStatus === 'active') {
-                if (cancelled) return;
-                setHasSubscription(true);
-                setSubscription(statusData.subscription);
-                setPlanData((prev) => ({
-                  ...(prev || {}),
-                  planName: statusData.subscription?.planName || prev?.planName,
-                  amount: statusData.subscription?.price ?? prev?.amount,
-                  trial: false,
-                  subscriptionStatus: currentStatus
-                }));
-                setInfoMessage('Você já possui uma assinatura ativa. Não é necessário realizar um novo pagamento agora.');
-                setLoading(false);
-                return;
-              }
-
-              if (currentStatus === 'trialing') {
-                setSubscription(statusData.subscription);
-                setPlanData((prev) => ({
-                  ...(prev || {}),
-                  planName: statusData.subscription?.planName || prev?.planName,
-                  amount: statusData.subscription?.price ?? prev?.amount,
-                  trial: false,
-                  subscriptionStatus: currentStatus
-                }));
-                setInfoMessage('Identificamos um pagamento pendente. Conclua o pagamento abaixo para ativar sua assinatura definitivamente.');
-              }
-            }
-          } else {
-            console.warn('[PaymentPage] subscription status response not ok', statusResponse.status);
-          }
-        } catch (statusError) {
-          console.error('[PaymentPage] subscription status error', statusError);
-        }
-
-        const response = await fetch('/api/payment/create-intent', {
-          method: 'POST',
+        const statusResponse = await fetch('/api/subscription/status', {
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            planId: planId,
-            trial: false
-          })
+          }
         });
 
-        console.log('[PaymentPage] createPaymentIntent:response', { status: response.status });
-        if (response.status === 401) {
+        if (statusResponse.status === 401) {
           localStorage.removeItem('token');
-          setError('Sua sessão expirou. Faça login novamente para continuar.');
+          setError('Sua sessão expirou. Faça login novamente.');
           setLoading(false);
           setTimeout(() => router.push('/login'), 1000);
           return;
         }
 
-        if (!response.ok) {
-          throw new Error('Erro ao criar payment intent');
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+
+          if (statusData.hasSubscription && statusData.subscription?.status === 'active') {
+            setHasSubscription(true);
+            setLoading(false);
+            return;
+          }
         }
 
-        const data = await response.json();
-        console.log('[PaymentPage] createPaymentIntent:success', data);
-        if (cancelled) return;
-        setClientSecret(data.clientSecret);
-        setPlanData((prev) => ({ ...(prev || {}), ...data }));
+        setLoading(false);
       } catch (err) {
-        console.error('Erro:', err);
-        if (!cancelled) {
-          setError('Erro ao carregar pagamento. Tente novamente.');
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        console.error('Erro ao verificar assinatura:', err);
+        setLoading(false);
       }
     };
 
-    preparePayment();
-
-    return () => {
-      cancelled = true;
-    };
+    if (planId) {
+      checkSubscription();
+    }
   }, [planId, router]);
 
-  const appearance = {
-    theme: 'stripe',
-    variables: {
-      colorPrimary: '#25d366',
-      colorBackground: '#ffffff',
-      colorText: '#1a1a1a',
-      colorDanger: '#df1b41',
-      fontFamily: 'Ideal Sans, system-ui, sans-serif',
-      spacingUnit: '2px',
-      borderRadius: '8px',
-    },
-    rules: {
-      '.Tab': {
-        border: '1px solid #e6e6e6',
-        borderRadius: '8px',
-      },
-      '.Tab:hover': {
-        color: '#25d366',
-      },
-      '.Tab--selected': {
-        backgroundColor: '#25d366',
-        color: '#ffffff',
-      },
-    }
-  };
-
-  const options = {
-    clientSecret,
-    appearance,
-  };
+  if (!planId || !PLANS[planId]) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Plano Inválido</h1>
+          <p className="text-gray-600 mb-6">O plano selecionado não existe ou não está disponível.</p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Voltar ao Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando pagamento...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
+          <p className="text-gray-700 text-lg font-medium">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Erro</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => router.push('/login')}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Fazer Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasSubscription) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Assinatura Ativa</h1>
+          <p className="text-gray-600 mb-6">Você já possui uma assinatura ativa. Não é necessário realizar um novo pagamento.</p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Ir para o Dashboard
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <button
-                onClick={() => router.back()}
-                className="mr-4 p-2 hover:bg-gray-100 text-gray-500 rounded-lg transition-colors"
-              >
-                ←
-              </button>
-              <h1 className="text-xl text-gray-500 font-semibold">
-                Finalizar Assinatura
-              </h1>
-            </div>
-            <div className="text-sm text-gray-500">
-              🔒 Pagamento Seguro
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-12 px-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Finalizar Pagamento</h1>
+          <p className="text-gray-600">Complete seu pagamento de forma segura</p>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Resumo do Plano */}
-          <div className="bg-white text-gray-700 rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Resumo do Pedido
-            </h2>
-
-            {hasSubscription && subscription ? (
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl shadow-xl p-8 sticky top-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Resumo do Pedido</h2>
+              
               <div className="space-y-4">
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <h3 className="text-lg font-semibold text-green-800">
-                    Você já possui o plano {subscription.planName}
-                  </h3>
-                  <p className="text-sm text-green-700 mt-1">
-                    Status atual: <span className="font-medium capitalize">{subscription.status}</span>
-                  </p>
-                  {subscription.status === 'trialing' && typeof subscription.daysLeft === 'number' && (
-                    <p className="text-sm text-green-700 mt-1">
-                      Dias restantes de teste: <span className="font-medium">{subscription.daysLeft}</span>
-                    </p>
-                  )}
-                  <p className="text-sm text-green-700 mt-2">
-                    Gerencie sua assinatura no dashboard.
-                  </p>
+                <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                  <span className="text-gray-600">Plano</span>
+                  <span className="font-semibold text-gray-900">{planData?.name}</span>
                 </div>
 
-                <div className="flex justify-between items-center p-4 bg-white border border-green-100 rounded-lg">
-                  <div>
-                    <h4 className="font-medium">
-                      Valor da assinatura
-                    </h4>
-                    <p className="text-sm">Cobrado mensalmente</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-semibold">
-                      R$ {((subscription.price ?? planData?.amount ?? 0) / 100).toFixed(2)}
-                    </div>
-                    <div className="text-sm">/mês</div>
-                  </div>
-                </div>
-              </div>
-            ) : planData ? (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg border border-green-200">
-                  <div>
-                    <h3 className="font-medium">
-                      Plano {planData.planName}
-                    </h3>
-                    <p className="text-sm">
-                      Cobrança mensal
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-semibold">
-                      R$ {((planData.amount ?? 0) / 100).toFixed(2)}
-                    </div>
-                    <div className="text-sm">/mês</div>
-                  </div>
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-gray-900 text-sm">Incluído:</h3>
+                  <ul className="space-y-2">
+                    {planData?.features?.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
+                        <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
                 <div className="pt-4 border-t border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">
-                      Total:
-                    </span>
-                    <span className="font-semibold text-xl text-green-600">
-                      R$ {((planData.amount ?? 0) / 100).toFixed(2)}
-                    </span>
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="text-gray-600">Valor mensal</span>
+                    <div className="text-right">
+                      <span className="text-3xl font-bold text-gray-900">
+                        {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: planData?.currency || 'BRL'
+                        }).format((planData?.price || 0) / 100)}
+                      </span>
+                      <span className="text-gray-500 text-sm">/mês</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 text-right">Cobrado mensalmente</p>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-4 mt-4">
+                  <div className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-sm text-blue-800">
+                      <strong>Pagamento seguro</strong> processado pelo Stripe. Cancele quando quiser.
+                    </p>
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-                Não encontramos informações deste plano. Volte e selecione outro para continuar.
-              </div>
-            )}
+            </div>
           </div>
 
-          {/* Formulário de Pagamento */}
-          <div className="bg-white text-gray-700 rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Informações de Pagamento
-            </h2>
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Dados de Pagamento</h2>
+              <EmbeddedCheckoutForm planId={planId} trial={false} />
+            </div>
+          </div>
+        </div>
 
-            {hasSubscription && subscription ? (
-              <div className="p-4 bg-green-50 border border-green-200 text-sm text-green-700 rounded-lg">
-                {infoMessage || 'Assinatura ativa detectada.'}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button
-                    onClick={() => router.push('/dashboard')}
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                  >
-                    Ir para o dashboard
-                  </button>
-                  <button
-                    onClick={() => router.back()}
-                    className="px-4 py-2 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 transition-colors"
-                  >
-                    Voltar
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                {infoMessage && (
-                  <div className="mb-4 p-4 bg-blue-50 border border-blue-200 text-sm text-blue-700 rounded-lg">
-                    {infoMessage}
-                  </div>
-                )}
-
-                {error && (
-                  <div className="mb-4 p-4 bg-red-50 border border-red-200 text-sm text-red-700 rounded-lg">
-                    {error}
-                    {error.includes('logado') && (
-                      <div className="mt-4 flex space-x-2">
-                        <button
-                          onClick={() => router.push('/login')}
-                          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                        >
-                          Fazer login
-                        </button>
-                        <button
-                          onClick={() => router.back()}
-                          className="px-4 py-2 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 transition-colors"
-                        >
-                          Voltar
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {clientSecret && !error && (
-                  <Elements options={options} stripe={stripePromise}>
-                    <CheckoutForm planData={planData} />
-                  </Elements>
-                )}
-
-                {!clientSecret && !error && (
-                  <div className="flex flex-col items-center justify-center h-32 text-gray-500 text-sm">
-                    Preparando o checkout seguro...
-                  </div>
-                )}
-              </>
-            )}
+        <div className="mt-8 text-center">
+          <div className="flex items-center justify-center gap-8 flex-wrap">
+            <div className="flex items-center gap-2 text-gray-600">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-sm font-medium">Conexão Segura</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span className="text-sm font-medium">Certificado SSL</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <span className="text-sm font-medium">Stripe Verified</span>
+            </div>
           </div>
         </div>
       </div>

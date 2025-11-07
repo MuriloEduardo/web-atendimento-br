@@ -64,34 +64,16 @@ export default function SubscriptionPlans() {
     setIsLoading(true);
     setError('');
 
-    try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          planId,
-          trial: false
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.url) {
-        // Redirecionar para checkout do Stripe
-        window.location.assign(data.url);
-      } else {
-        setError(data.error || 'Erro ao criar sessão de pagamento');
-        setIsLoading(false);
-      }
-    } catch (error) {
-      setError('Erro ao processar. Tente novamente.');
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      setError('Você precisa estar logado');
       setIsLoading(false);
+      return;
     }
+    
+    // Redirecionar para página de pagamento embutida
+    router.push(`/payment/${planId}`);
   };
 
   return (

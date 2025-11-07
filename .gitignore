@@ -49,4 +49,5 @@ test-results.log
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
+# Prisma
+prisma/dev.db

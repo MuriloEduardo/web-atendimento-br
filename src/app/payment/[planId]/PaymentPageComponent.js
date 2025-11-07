@@ -98,6 +98,41 @@ export default function PaymentPageComponent({ params: initialParams }) {
           return;
         }
 
+        // Garantir que a empresa existe antes de criar payment intent
+        try {
+          const companyCheckResponse = await fetch('/api/company/current', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (companyCheckResponse.status === 404) {
+            // Empresa não existe, criar uma empresa padrão
+            console.log('[PaymentPage] Company not found, creating default company');
+            const createCompanyResponse = await fetch('/api/onboarding/business-info', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                businessName: 'Minha Empresa',
+                businessType: 'Outros',
+                website: null
+              })
+            });
+
+            if (!createCompanyResponse.ok) {
+              console.error('[PaymentPage] Failed to create company');
+              setError('Erro ao configurar sua empresa. Por favor, volte e preencha os dados da empresa.');
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (companyError) {
+          console.error('[PaymentPage] company check error', companyError);
+        }
+
         // Verificar se usuário já possui assinatura ativa
         try {
           const statusResponse = await fetch('/api/subscription/status', {

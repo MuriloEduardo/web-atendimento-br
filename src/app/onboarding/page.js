@@ -196,17 +196,33 @@ const BusinessInfoStep = ({ onNext, onBack }) => {
     e.preventDefault();
     
     try {
-      await fetch('/api/onboarding/business-info', {
+      const payload = {
+        businessName: businessInfo.companyName,
+        businessType: businessInfo.businessType,
+        website: businessInfo.currentWhatsApp ? `https://wa.me/${businessInfo.currentWhatsApp.replace(/\D/g, '')}` : null,
+        phoneNumber: businessInfo.currentWhatsApp
+      };
+      
+      const response = await fetch('/api/onboarding/business-info', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(businessInfo)
+        body: JSON.stringify(payload)
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Erro ao salvar:', errorData);
+        alert('Erro ao salvar informações: ' + (errorData.error || 'Erro desconhecido'));
+        return;
+      }
+      
       onNext();
     } catch (error) {
       console.error('Erro ao salvar informações da empresa:', error);
+      alert('Erro ao salvar informações. Tente novamente.');
     }
   };
 

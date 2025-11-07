@@ -1,25 +1,131 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
+import { prisma } from '@/lib/prisma';
+import { extractAuthToken, createAuthErrorResponse } from '@/lib/authMiddleware';
 
 export async function GET(request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
 
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      );
+    if (error) {
+      return createAuthErrorResponse(error);
     }
 
-    // Retornar dados do usuário sem a senha
-    const { password: _, ...userWithoutPassword } = user;
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
+    }
 
-    return NextResponse.json(userWithoutPassword);
+    // Buscar usuário no banco de dados
+    const user = await prisma.user.findUnique({
+      where: { id: tokenUser.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phoneNumber: true,
+        businessName: true,
+        businessType: true,
+        website: true,
+        isEmailVerified: true,
+        profileComplete: true,
+        onboardingComplete: true,
+        subscriptionStatus: true,
+        plan: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!user) {
+      return createAuthErrorResponse('Usuário não encontrado');
+    }
+
+    return NextResponse.json({
+      user,
+      message: 'Perfil obtido com sucesso'
+    });
 
   } catch (error) {
     console.error('Erro ao buscar perfil:', error);
+    return NextResponse.json(
+      { error: 'Erro interno do servidor' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request) {
+  try {
+    // Verificar e extrair token
+    const { user: tokenUser, error } = extractAuthToken(request);
+
+    if (error) {
+      return createAuthErrorResponse(error);
+    }
+
+    if (!tokenUser || !tokenUser.userId) {
+      return createAuthErrorResponse('Token inválido');
+    }
+
+    // Parsing do corpo da requisição
+    const data = await request.json();
+
+    // Validar dados que podem ser atualizados
+    const updateData = {};
+
+    if (data.name !== undefined) {
+      updateData.name = data.name.trim();
+    }
+
+    if (data.phoneNumber !== undefined) {
+      updateData.phoneNumber = data.phoneNumber;
+    }
+
+    if (data.businessName !== undefined) {
+      updateData.businessName = data.businessName;
+    }
+
+    if (data.businessType !== undefined) {
+      updateData.businessType = data.businessType;
+    }
+
+    if (data.website !== undefined) {
+      updateData.website = data.website;
+    }
+
+    if (data.profileComplete !== undefined) {
+      updateData.profileComplete = Boolean(data.profileComplete);
+    }
+
+    // Atualizar usuário
+    const updatedUser = await prisma.user.update({
+      where: { id: tokenUser.userId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phoneNumber: true,
+        businessName: true,
+        businessType: true,
+        website: true,
+        isEmailVerified: true,
+        profileComplete: true,
+        onboardingComplete: true,
+        subscriptionStatus: true,
+        plan: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    return NextResponse.json({
+      user: updatedUser,
+      message: 'Perfil atualizado com sucesso'
+    });
+
+  } catch (error) {
+    console.error('Erro ao atualizar perfil:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

@@ -41,7 +41,7 @@ export default function Login() {
         localStorage.setItem('token', data.token);
         
         // Verificar se precisa de onboarding
-        if (data.user.needsOnboarding) {
+        if (!data.user.onboardingComplete) {
           router.push('/onboarding');
         } else {
           router.push('/dashboard');

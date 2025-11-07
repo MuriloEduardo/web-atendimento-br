@@ -54,13 +54,21 @@ export default function Dashboard() {
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
+          
+          // userData agora contém: { user, message }
+          const userProfile = userData.user || userData;
 
-          if (!userData.subscriptionActive) {
+          if (!userProfile.onboardingComplete) {
+            router.push('/onboarding?step=profile');
+            return;
+          }
+
+          if (userProfile.subscriptionStatus === 'inactive') {
             router.push('/onboarding?step=subscription');
             return;
           }
 
-          setUser(userData);
+          setUser(userProfile);
         } else {
           // Token inválido
           localStorage.removeItem('token');

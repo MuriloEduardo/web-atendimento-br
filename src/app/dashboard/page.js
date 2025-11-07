@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import OnboardingSteps from './OnboardingSteps';
+import DashboardHeader from '@/components/DashboardHeader';
 
 // Função para converter códigos de features em nomes legíveis
 const getFeatureName = (featureCode) => {
@@ -27,7 +28,7 @@ const getFeatureName = (featureCode) => {
     'custom_api': 'API personalizada',
     'white_label': 'White label'
   };
-  
+
   return featureNames[featureCode] || featureCode;
 };
 
@@ -46,6 +47,8 @@ export default function Dashboard() {
     }
 
     try {
+      console.log('🔄 Carregando dados do usuário e status do onboarding...');
+
       // Carregar dados do usuário
       const userResponse = await fetch('/api/user/profile', {
         headers: {
@@ -55,7 +58,7 @@ export default function Dashboard() {
 
       if (userResponse.ok) {
         const userData = await userResponse.json();
-        
+
         // userData agora contém: { user, message }
         const userProfile = userData.user || userData;
 
@@ -99,7 +102,7 @@ export default function Dashboard() {
       } catch (error) {
         console.error('Erro ao carregar assinatura:', error);
       }
-      
+
     } catch (error) {
       console.error('Erro ao carregar usuário:', error);
       router.push('/login');
@@ -110,6 +113,22 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadUser();
+  }, [loadUser]);
+
+  // Detectar parâmetro refresh e recarregar dados
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('refresh') === 'true') {
+        console.log('🔄 Refresh detectado - recarregando dados do onboarding...');
+        // Limpar o parâmetro da URL
+        window.history.replaceState({}, '', '/dashboard');
+        // Forçar recarga dos dados após um pequeno delay para garantir que o banco foi atualizado
+        setTimeout(() => {
+          loadUser();
+        }, 500);
+      }
+    }
   }, [loadUser]);
 
   const handleLogout = () => {
@@ -129,41 +148,22 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="bg-white text-black shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold">Atendimento BR</h1>
-              <p className="text-sm">Dashboard</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm">
-                Olá, {user?.name || 'Usuário'}!
-              </span>
-              <button
-                onClick={handleLogout}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                style={{ backgroundColor: '#25d366' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
-              >
-                Sair
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50">
+      {/* Novo Header com Dropdowns */}
+      <DashboardHeader 
+        user={user}
+        onboardingStatus={onboardingStatus}
+        onLogout={handleLogout}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Onboarding Steps - Mostra se não estiver completo */}
-          <OnboardingSteps 
-            user={user} 
+          <OnboardingSteps
+            user={user}
             onboardingStatus={onboardingStatus}
-            onRefresh={() => loadUser()} 
+            onRefresh={() => loadUser()}
           />
 
           {/* Welcome message */}
@@ -173,7 +173,7 @@ export default function Dashboard() {
                 Bem-vindo ao seu dashboard!
               </h2>
               <p className="text-gray-600">
-                Esta é a página principal da sua conta no Atendimento BR. 
+                Esta é a página principal da sua conta no Atendimento BR.
                 Aqui você poderá gerenciar seus atendimentos, configurações e muito mais.
               </p>
             </div>
@@ -186,7 +186,7 @@ export default function Dashboard() {
                 <h3 className="text-lg font-medium mb-4">
                   Status da Assinatura
                 </h3>
-                
+
                 {subscription.hasSubscription ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -350,6 +350,188 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* Insights e Dicas de Onboarding */}
+          {onboardingStatus && !onboardingStatus.allComplete && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Dicas de Configuração */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-lg overflow-hidden">
+                <div className="px-6 py-5">
+                  <div className="flex items-center mb-4">
+                    <div className="flex-shrink-0 bg-blue-500 rounded-lg p-3">
+                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <h3 className="ml-4 text-lg font-bold text-gray-900">
+                      💡 Dica Rápida
+                    </h3>
+                  </div>
+                  <p className="text-gray-700 text-sm leading-relaxed mb-3">
+                    {!onboardingStatus.steps.company.completed && (
+                      <>
+                        <strong>Passo 1:</strong> Configure os dados da sua empresa para personalizar a experiência de atendimento.
+                      </>
+                    )}
+                    {onboardingStatus.steps.company.completed && !onboardingStatus.steps.whatsapp.completed && (
+                      <>
+                        <strong>Próximo passo:</strong> Escolha seu número do WhatsApp! Temos números premium disponíveis em várias regiões do Brasil.
+                      </>
+                    )}
+                    {onboardingStatus.steps.whatsapp.completed && !onboardingStatus.steps.meta.completed && (
+                      <>
+                        <strong>Quase lá!</strong> Conecte sua conta Meta Business para integrar com o WhatsApp oficial.
+                      </>
+                    )}
+                    {onboardingStatus.steps.meta.completed && !onboardingStatus.steps.payment.completed && (
+                      <>
+                        <strong>Último passo!</strong> Ative sua assinatura para desbloquear todos os recursos de automação.
+                      </>
+                    )}
+                  </p>
+                  <div className="bg-white bg-opacity-60 rounded-lg p-3 text-xs text-gray-600">
+                    <strong>Tempo estimado:</strong> 5-10 minutos para completar a configuração
+                  </div>
+                </div>
+              </div>
+
+              {/* Estatísticas de Progresso */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl shadow-lg overflow-hidden">
+                <div className="px-6 py-5">
+                  <div className="flex items-center mb-4">
+                    <div className="flex-shrink-0 bg-green-500 rounded-lg p-3">
+                      <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <h3 className="ml-4 text-lg font-bold text-gray-900">
+                      🚀 Seu Progresso
+                    </h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700">Configuração inicial</span>
+                      <span className="text-2xl font-bold text-green-600">
+                        {Math.round((
+                          (onboardingStatus.steps.company.completed ? 25 : 0) +
+                          (onboardingStatus.steps.whatsapp.completed ? 25 : 0) +
+                          (onboardingStatus.steps.meta.completed ? 25 : 0) +
+                          (onboardingStatus.steps.payment.completed ? 25 : 0)
+                        ))}%
+                      </span>
+                    </div>
+                    <div className="bg-white rounded-full h-3 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-green-400 to-green-600 h-full transition-all duration-500 ease-out"
+                        style={{
+                          width: `${Math.round((
+                            (onboardingStatus.steps.company.completed ? 25 : 0) +
+                            (onboardingStatus.steps.whatsapp.completed ? 25 : 0) +
+                            (onboardingStatus.steps.meta.completed ? 25 : 0) +
+                            (onboardingStatus.steps.payment.completed ? 25 : 0)
+                          ))}%`
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-600 mt-3">
+                      {onboardingStatus.steps.company.completed &&
+                        onboardingStatus.steps.whatsapp.completed &&
+                        onboardingStatus.steps.meta.completed &&
+                        onboardingStatus.steps.payment.completed ? (
+                        <span className="text-green-600 font-semibold">
+                          ✅ Configuração completa! Pronto para começar.
+                        </span>
+                      ) : (
+                        <>
+                          Faltam apenas{' '}
+                          <strong>
+                            {4 - [
+                              onboardingStatus.steps.company.completed,
+                              onboardingStatus.steps.whatsapp.completed,
+                              onboardingStatus.steps.meta.completed,
+                              onboardingStatus.steps.payment.completed
+                            ].filter(Boolean).length}
+                          </strong>
+                          {' '}etapa(s) para começar a atender!
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Benefícios e Features */}
+          {onboardingStatus && onboardingStatus.allComplete && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              {/* Economia de Tempo */}
+              <div className="bg-white border-2 border-purple-200 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <div className="px-6 py-5">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="bg-purple-100 rounded-full p-4">
+                      <svg className="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 className="text-center text-lg font-bold text-gray-900 mb-2">
+                    ⚡ Tempo Economizado
+                  </h3>
+                  <p className="text-center text-3xl font-bold text-purple-600 mb-2">
+                    ~15h/semana
+                  </p>
+                  <p className="text-center text-sm text-gray-600">
+                    Com automação de respostas, você foca no que importa: crescer seu negócio
+                  </p>
+                </div>
+              </div>
+
+              {/* Taxa de Resposta */}
+              <div className="bg-white border-2 border-blue-200 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <div className="px-6 py-5">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="bg-blue-100 rounded-full p-4">
+                      <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 className="text-center text-lg font-bold text-gray-900 mb-2">
+                    📈 Resposta Instantânea
+                  </h3>
+                  <p className="text-center text-3xl font-bold text-blue-600 mb-2">
+                    &lt;5 segundos
+                  </p>
+                  <p className="text-center text-sm text-gray-600">
+                    Seus clientes recebem respostas imediatas 24/7, mesmo fora do horário comercial
+                  </p>
+                </div>
+              </div>
+
+              {/* Satisfação do Cliente */}
+              <div className="bg-white border-2 border-green-200 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <div className="px-6 py-5">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="bg-green-100 rounded-full p-4">
+                      <svg className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 className="text-center text-lg font-bold text-gray-900 mb-2">
+                    😊 Satisfação
+                  </h3>
+                  <p className="text-center text-3xl font-bold text-green-600 mb-2">
+                    +40%
+                  </p>
+                  <p className="text-center text-sm text-gray-600">
+                    Clientes mais satisfeitos com atendimento rápido e eficiente
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Recent activity */}
           <div className="bg-white text-black shadow rounded-lg">

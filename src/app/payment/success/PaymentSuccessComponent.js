@@ -46,7 +46,8 @@ export default function PaymentSuccessComponent() {
           setStatus('succeeded');
 
           // Ativar assinatura
-          await fetch('/api/subscription/activate', {
+          console.log('🔄 Ativando assinatura...', { sessionId, hasToken: !!token });
+          const activateResponse = await fetch('/api/subscription/activate', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -54,6 +55,25 @@ export default function PaymentSuccessComponent() {
             },
             body: JSON.stringify({ sessionId })
           });
+
+          console.log('📊 Status da resposta:', activateResponse.status, activateResponse.statusText);
+
+          if (activateResponse.ok) {
+            const activateData = await activateResponse.json();
+            console.log('✅ Assinatura ativada:', activateData);
+          } else {
+            let errorData;
+            try {
+              errorData = await activateResponse.json();
+            } catch (parseError) {
+              errorData = {
+                error: 'Resposta não é JSON válido',
+                status: activateResponse.status,
+                statusText: activateResponse.statusText
+              };
+            }
+            console.error('❌ Erro ao ativar assinatura:', errorData);
+          }
         } else {
           setStatus('processing');
         }
@@ -70,7 +90,7 @@ export default function PaymentSuccessComponent() {
     if (status === 'succeeded') {
       // Redirecionar para dashboard após 3 segundos
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/dashboard?refresh=true');
       }, 3000);
     }
   }, [status, router]);

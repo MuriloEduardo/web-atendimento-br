@@ -1,130 +1,119 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/mockDb';
-import { PLANS } from '@/lib/plans';
+import { PrismaClient } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 
-const isStripeConfigured = () => {
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  return Boolean(secretKey && !secretKey.startsWith('sk_test_sua_chave'));
-};
+const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET || 'secret-key-dev-only';
 
 const getStripeInstance = async () => {
-  if (!isStripeConfigured()) {
-    throw new Error('Stripe não configurado');
-  }
-
   const Stripe = (await import('stripe')).default;
   return new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2022-11-15'
+    apiVersion: '2023-10-16'
   });
 };
 
 export async function POST(request) {
   try {
-    if (!isStripeConfigured()) {
-      return NextResponse.json({ error: 'Stripe não configurado.' }, { status: 400 });
-    }
+    console.log('🔍 [ACTIVATE] Iniciando ativação de assinatura...');
 
     const authHeader = request.headers.get('authorization');
-    const user = db.getUserFromToken(authHeader);
+    const token = authHeader?.replace('Bearer ', '');
 
-    if (!user) {
+    if (!token) {
+      console.error('❌ [ACTIVATE] Token não fornecido');
+      return NextResponse.json({ error: 'Token não fornecido' }, { status: 401 });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+      console.log('✅ [ACTIVATE] Token válido, userId:', decoded.userId);
+    } catch (error) {
+      console.error('❌ [ACTIVATE] Token inválido:', error.message);
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
     }
 
-    const { paymentIntentId } = await request.json();
+    const { sessionId } = await request.json();
+    console.log('📋 [ACTIVATE] SessionId recebido:', sessionId);
 
-    if (!paymentIntentId) {
-      return NextResponse.json({ error: 'paymentIntentId é obrigatório' }, { status: 400 });
+    if (!sessionId) {
+      console.error('❌ [ACTIVATE] sessionId não fornecido');
+      return NextResponse.json({ error: 'sessionId é obrigatório' }, { status: 400 });
     }
 
+    console.log('🔍 [ACTIVATE] Buscando sessão no Stripe...');
     const stripe = await getStripeInstance();
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
-    if (!paymentIntent) {
-      return NextResponse.json({ error: 'Pagamento não encontrado na Stripe' }, { status: 404 });
+    if (!session) {
+      console.error('❌ [ACTIVATE] Sessão não encontrada no Stripe');
+      return NextResponse.json({ error: 'Sessão não encontrada' }, { status: 404 });
     }
 
-    if (paymentIntent.status !== 'succeeded') {
+    console.log('✅ [ACTIVATE] Sessão encontrada, payment_status:', session.payment_status);
+
+    if (session.payment_status !== 'paid') {
+      console.error('❌ [ACTIVATE] Pagamento não aprovado ainda:', session.payment_status);
       return NextResponse.json({ error: 'Pagamento ainda não aprovado' }, { status: 409 });
     }
 
-    if (paymentIntent.amount_received <= 0) {
-      return NextResponse.json({ error: 'Pagamento sem valor recebido' }, { status: 409 });
-    }
+    // Buscar ou criar empresa do usuário
+    console.log('🔍 [ACTIVATE] Buscando empresa do usuário...');
+    let company = await prisma.company.findFirst({
+      where: { ownerId: decoded.userId }
+    });
 
-    const metadata = paymentIntent.metadata || {};
-    const metadataUserId = metadata.userId ? parseInt(metadata.userId, 10) : null;
-
-    if (metadataUserId && metadataUserId !== user.id) {
-      return NextResponse.json({ error: 'Pagamento não pertence ao usuário autenticado' }, { status: 403 });
-    }
-
-    const planId = metadata.planId || user.planId;
-    const plan = planId ? PLANS[planId] : null;
-
-    if (!plan) {
-      return NextResponse.json({ error: 'Plano associado ao pagamento não encontrado' }, { status: 400 });
-    }
-
-    const nowIso = new Date().toISOString();
-    let subscription = db.getSubscriptionByUserId(user.id);
-
-    if (!subscription) {
-      subscription = db.createSubscription({
-        userId: user.id,
-        planId: plan.id,
-        planName: plan.name,
-        price: plan.price,
-        currency: plan.currency,
-        status: 'active',
-        activatedAt: nowIso,
-        currentPeriodStart: nowIso,
-        currentPeriodEnd: null,
-        features: plan.features,
-        stripePaymentIntentId: paymentIntent.id,
-        stripeCustomerId: paymentIntent.customer || user.stripeCustomerId || null
+    if (!company) {
+      console.log('⚠️ [ACTIVATE] Empresa não encontrada, criando nova...');
+      company = await prisma.company.create({
+        data: {
+          ownerId: decoded.userId,
+          name: 'Minha Empresa',
+          status: 'active'
+        }
       });
+      console.log('✅ [ACTIVATE] Empresa criada, id:', company.id);
     } else {
-      db.updateSubscription(subscription.id, {
-        planId: plan.id,
-        planName: plan.name,
-        price: plan.price,
-        currency: plan.currency,
-        features: plan.features,
-        status: 'active',
-        activatedAt: nowIso,
-        currentPeriodStart: subscription.currentPeriodStart || nowIso,
-        stripePaymentIntentId: paymentIntent.id,
-        stripeCustomerId: paymentIntent.customer || subscription.stripeCustomerId || null
-      });
-
-      subscription = db.getSubscriptionById(subscription.id);
+      console.log('✅ [ACTIVATE] Empresa encontrada, id:', company.id);
     }
 
-    db.updateUser(user.id, {
-      planId: plan.id,
-      subscriptionStatus: 'active',
-      subscriptionId: subscription.id,
-      subscriptionActive: true,
-      stripeCustomerId: subscription.stripeCustomerId || paymentIntent.customer || user.stripeCustomerId || null
+    // Atualizar empresa como ativa e marcar pagamento como concluído
+    console.log('🔄 [ACTIVATE] Atualizando empresa...');
+    const updatedCompany = await prisma.company.update({
+      where: { id: company.id },
+      data: {
+        status: 'active',
+        paymentSetup: true,
+        stripePriceId: session.metadata?.planId || 'starter'
+      }
+    });
+
+    console.log('✅ Assinatura ativada:', {
+      companyId: updatedCompany.id,
+      paymentSetup: updatedCompany.paymentSetup,
+      status: updatedCompany.status,
+      stripePriceId: updatedCompany.stripePriceId
     });
 
     return NextResponse.json({
       success: true,
-      subscription: {
-        id: subscription.id,
-        status: subscription.status,
-        planId: subscription.planId,
-        planName: subscription.planName,
-        price: subscription.price,
-        currency: subscription.currency,
-        features: subscription.features
+      message: 'Assinatura ativada com sucesso',
+      company: {
+        id: updatedCompany.id,
+        status: updatedCompany.status,
+        paymentSetup: updatedCompany.paymentSetup,
+        stripePriceId: updatedCompany.stripePriceId
       }
     });
 
   } catch (error) {
-    console.error('Erro ao ativar assinatura:', error);
-    const status = error.statusCode || 500;
-    return NextResponse.json({ error: error.message || 'Erro interno do servidor' }, { status });
+    console.error('❌ [ACTIVATE] Erro ao ativar assinatura:', error);
+    console.error('❌ [ACTIVATE] Stack:', error.stack);
+    return NextResponse.json({
+      error: 'Erro ao ativar assinatura',
+      details: error.message
+    }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }

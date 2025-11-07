@@ -23,15 +23,16 @@ export async function GET(request) {
 
         const data = await response.json();
 
-        // Formatar os números para exibição
-        const numerosFormatados = data.success && Array.isArray(data.data)
+        // Formatar os números para exibição no formato esperado pelo frontend
+        const numbers = data.success && Array.isArray(data.data)
             ? data.data.map(num => ({
+                id: num.CODIGO,
                 codigo: num.CODIGO,
                 numero: num.NUMERO,
                 numeroCompleto: `+55 ${num.CN} ${num.NUMERO}`,
                 cn: num.CN,
-                valorMensal: parseFloat(num.VALOR_MENSAL),
-                valorInstalacao: parseFloat(num.VALOR_INSTALACAO),
+                valorMensal: parseFloat(num.VALOR_MENSAL || 26.30),
+                valorInstalacao: parseFloat(num.VALOR_INSTALACAO || 0),
                 gold: num.GOLD === '1',
                 superGold: num.SUPER_GOLD === '1',
                 diamante: num.DIAMANTE === '1'
@@ -40,7 +41,7 @@ export async function GET(request) {
 
         return NextResponse.json({
             success: true,
-            data: numerosFormatados
+            numbers: numbers
         });
     } catch (error) {
         console.error('Erro ao buscar números:', error);

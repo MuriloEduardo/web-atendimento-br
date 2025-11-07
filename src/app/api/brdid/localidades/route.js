@@ -10,34 +10,40 @@ export async function GET() {
 
         const data = await response.json();
 
-        // Agrupar por UF e CN (código nacional)
-        const localidadesPorUF = {};
+        // Transformar os dados para o formato esperado pelo frontend
+        const locations = [];
 
         if (data.success && Array.isArray(data.data)) {
+            // Agrupar por área local para evitar duplicatas
+            const uniqueLocations = new Map();
+            
             data.data.forEach(loc => {
-                const uf = loc.UF || 'Outros';
-                if (!localidadesPorUF[uf]) {
-                    localidadesPorUF[uf] = [];
+                const key = loc.AREA_LOCAL;
+                if (!uniqueLocations.has(key)) {
+                    uniqueLocations.set(key, {
+                        code: loc.AREA_LOCAL,
+                        name: `${loc.LOCALIDADE} - ${loc.UF}`,
+                        uf: loc.UF,
+                        cn: loc.CN,
+                        valorMensal: parseFloat(loc.VALOR_MENSAL || 26.30),
+                        valorInstalacao: parseFloat(loc.VALOR_INSTALACAO || 0)
+                    });
                 }
-                localidadesPorUF[uf].push({
-                    areaLocal: loc.AREA_LOCAL,
-                    localidade: loc.LOCALIDADE,
-                    cn: loc.CN,
-                    valorMensal: parseFloat(loc.VALOR_MENSAL),
-                    valorInstalacao: parseFloat(loc.VALOR_INSTALACAO)
-                });
             });
+
+            locations.push(...uniqueLocations.values());
         }
 
         return NextResponse.json({
             success: true,
-            data: localidadesPorUF
+            locations: locations
         });
     } catch (error) {
         console.error('Erro ao buscar localidades:', error);
         return NextResponse.json({
             success: false,
-            error: error.message
+            error: error.message,
+            locations: []
         }, { status: 500 });
     }
 }

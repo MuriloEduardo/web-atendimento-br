@@ -150,7 +150,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Novo Header com Dropdowns */}
-      <DashboardHeader 
+      <DashboardHeader
         user={user}
         onboardingStatus={onboardingStatus}
         onLogout={handleLogout}
@@ -179,177 +179,84 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Subscription Status */}
-          {subscription && (
-            <div className="bg-white text-black overflow-hidden shadow rounded-lg mb-6">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg font-medium mb-4">
-                  Status da Assinatura
-                </h3>
-
-                {subscription.hasSubscription ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="text-sm font-medium">
-                          Plano {subscription.subscription.planName}
-                        </h4>
-                        <p className="text-sm">
-                          R$ {(subscription.subscription.price / 100).toFixed(2)}/mês
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        {subscription.subscription.status === 'trialing' ? (
-                          <div>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                              Pagamento pendente
-                            </span>
-                            <p className="text-sm mt-1">
-                              Conclua o pagamento para liberar todas as funcionalidades.
-                            </p>
-                          </div>
-                        ) : subscription.subscription.status === 'active' ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Ativo
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Vencido
-                          </span>
-                        )}
-                      </div>
+          {/* Status da Assinatura - Apenas se tiver assinatura ativa */}
+          {subscription?.hasSubscription && subscription.subscription.status === 'active' && (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl shadow-lg mb-6 overflow-hidden">
+              <div className="px-6 py-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-shrink-0 bg-green-500 rounded-full p-3">
+                      <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                     </div>
-
-                    {subscription.subscription.status === 'trialing' && (
-                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                        <div className="flex">
-                          <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                          <div className="ml-3">
-                            <h3 className="text-sm font-medium text-yellow-800">
-                              Finalize o pagamento para ativar sua assinatura
-                            </h3>
-                            <div className="mt-2 text-sm text-yellow-700">
-                              <p>
-                                Sem a confirmação do pagamento, o acesso ao dashboard ficará indisponível.
-                              </p>
-                            </div>
-                            <div className="mt-3">
-                              <button
-                                onClick={() => router.push(`/payment/${subscription.subscription.planId || ''}`)}
-                                className="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded text-sm font-medium"
-                              >
-                                Concluir pagamento agora
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="border-t pt-4">
-                      <h5 className="text-sm font-medium mb-2">Funcionalidades incluídas:</h5>
-                      <ul className="text-sm space-y-1">
-                        {subscription.subscription.features.map((feature, index) => (
-                          <li key={index} className="flex items-center">
-                            <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                            {getFeatureName(feature)}
-                          </li>
-                        ))}
-                      </ul>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        Plano {subscription.subscription.planName}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        R$ {(subscription.subscription.price / 100).toFixed(2)}/mês •
+                        <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Ativo
+                        </span>
+                      </p>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-gray-600 mb-4">Você não possui uma assinatura ativa.</p>
-                    <button
-                      onClick={() => router.push('/dashboard/subscription/plans')}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                      style={{ backgroundColor: '#25d366' }}
-                      onMouseEnter={(e) => e.target.style.backgroundColor = '#1da651'}
-                      onMouseLeave={(e) => e.target.style.backgroundColor = '#25d366'}
-                    >
-                      Escolher Plano
-                    </button>
+                  <button
+                    onClick={() => router.push('/dashboard/subscription')}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                  >
+                    Gerenciar
+                  </button>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-green-200">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {subscription.subscription.features.slice(0, 4).map((feature, index) => (
+                      <div key={index} className="flex items-center text-sm text-gray-700">
+                        <svg className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="truncate">{getFeatureName(feature)}</span>
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Quick stats */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-6">
-            <div className="bg-white text-black overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          {/* Aviso de Pagamento Pendente */}
+          {subscription?.hasSubscription && subscription.subscription.status === 'trialing' && (
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl shadow-lg mb-6 overflow-hidden">
+              <div className="px-6 py-5">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0 bg-yellow-500 rounded-full p-3">
+                    <svg className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Atendimentos hoje
-                      </dt>
-                      <dd className="text-lg font-medium">
-                        0
-                      </dd>
-                    </dl>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-yellow-900">
+                      Pagamento Pendente
+                    </h3>
+                    <p className="mt-1 text-sm text-yellow-800">
+                      Complete o pagamento para ativar sua assinatura e liberar todas as funcionalidades.
+                    </p>
+                    <button
+                      onClick={() => router.push(`/payment/${subscription.subscription.planId || ''}`)}
+                      className="mt-4 inline-flex items-center px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Concluir Pagamento Agora
+                      <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className="bg-white text-black overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Satisfação média
-                      </dt>
-                      <dd className="text-lg font-medium">
-                        --
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white text-black overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        Tempo médio de resposta
-                      </dt>
-                      <dd className="text-lg font-medium">
-                        --
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Insights e Dicas de Onboarding */}
           {onboardingStatus && !onboardingStatus.allComplete && (
@@ -533,20 +440,150 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Recent activity */}
-          <div className="bg-white text-black shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium mb-4">
-                Atividade recente
-              </h3>
-              <div className="text-center py-8">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium">Nenhuma atividade ainda</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Suas atividades de atendimento aparecerão aqui.
-                </p>
+          {/* Guia de Início Rápido - Após completar onboarding */}
+          {onboardingStatus?.allComplete && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Próximos Passos */}
+              <div className="bg-white rounded-xl shadow-sm border-2 border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+                  <h3 className="text-lg font-bold text-white flex items-center">
+                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Próximos Passos
+                  </h3>
+                  <p className="text-blue-100 text-sm mt-1">Configure seu primeiro chatbot</p>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">
+                    <div className="flex-shrink-0 mt-1">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        1
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-semibold text-gray-900">Criar Primeiro Chatbot</h4>
+                      <p className="text-xs text-gray-600 mt-1">Configure respostas automáticas para perguntas frequentes</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div className="flex-shrink-0 mt-1">
+                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        2
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-semibold text-gray-900">Importar Contatos</h4>
+                      <p className="text-xs text-gray-600 mt-1">Adicione sua base de clientes para começar a enviar mensagens</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <div className="flex-shrink-0 mt-1">
+                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        3
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-semibold text-gray-900">Configurar Equipe</h4>
+                      <p className="text-xs text-gray-600 mt-1">Convide membros da equipe para colaborar nos atendimentos</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recursos Disponíveis */}
+              <div className="bg-white rounded-xl shadow-sm border-2 border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                  <h3 className="text-lg font-bold text-white flex items-center">
+                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    Recursos Disponíveis
+                  </h3>
+                  <p className="text-green-100 text-sm mt-1">Explore as funcionalidades da plataforma</p>
+                </div>
+                <div className="p-6 space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">🤖</span>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900">Chatbot com IA</h4>
+                        <p className="text-xs text-gray-600">Respostas inteligentes automáticas</p>
+                      </div>
+                    </div>
+                    <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">📊</span>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900">Relatórios Avançados</h4>
+                        <p className="text-xs text-gray-600">Métricas e análises em tempo real</p>
+                      </div>
+                    </div>
+                    <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">🔗</span>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900">Integrações</h4>
+                        <p className="text-xs text-gray-600">Conecte com CRM e outras ferramentas</p>
+                      </div>
+                    </div>
+                    <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">👥</span>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900">Multi-usuários</h4>
+                        <p className="text-xs text-gray-600">Colaboração em equipe</p>
+                      </div>
+                    </div>
+                    <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Ajuda e Suporte */}
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-sm border-2 border-purple-200 overflow-hidden">
+            <div className="px-6 py-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0 bg-purple-500 rounded-full p-3">
+                    <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Precisa de Ajuda?</h3>
+                    <p className="text-sm text-gray-600">Nossa equipe está pronta para te ajudar</p>
+                  </div>
+                </div>
+                <div className="flex space-x-3">
+                  <button className="px-4 py-2 bg-white border-2 border-purple-300 rounded-lg text-sm font-medium text-purple-700 hover:bg-purple-50 transition-colors">
+                    📚 Central de Ajuda
+                  </button>
+                  <button className="px-4 py-2 bg-purple-500 rounded-lg text-sm font-medium text-white hover:bg-purple-600 transition-colors">
+                    💬 Falar com Suporte
+                  </button>
+                </div>
               </div>
             </div>
           </div>

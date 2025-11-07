@@ -30,6 +30,15 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# Database files (local development)
+*.db
+*.db-journal
+
+# Log files
+*.log
+server.log
+test-results.log
+
 # env files (can opt-in for committing if needed)
 .env*
 

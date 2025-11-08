@@ -13,8 +13,17 @@ export async function GET(request) {
             }, { status: 400 });
         }
 
+        const BRDID_API_URL = process.env.BRDID_API_URL;
+        
+        if (!BRDID_API_URL) {
+            return NextResponse.json({
+                success: false,
+                error: 'BRDID_API_URL não configurada'
+            }, { status: 500 });
+        }
+
         const response = await fetch(
-            `http://localhost:7000/api/did/numeros?areaLocal=${areaLocal}&limit=${limit}`
+            `${BRDID_API_URL}/api/did/numeros?areaLocal=${areaLocal}&limit=${limit}`
         );
 
         if (!response.ok) {

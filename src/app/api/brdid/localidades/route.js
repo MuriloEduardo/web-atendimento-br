@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
     try {
-        const response = await fetch('http://localhost:7000/api/localidades');
+        const BRDID_API_URL = process.env.BRDID_API_URL;
+        
+        if (!BRDID_API_URL) {
+            return NextResponse.json({
+                success: false,
+                error: 'BRDID_API_URL não configurada'
+            }, { status: 500 });
+        }
+
+        const response = await fetch(`${BRDID_API_URL}/api/localidades`);
 
         if (!response.ok) {
             throw new Error('Erro ao buscar localidades');

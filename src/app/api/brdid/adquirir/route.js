@@ -115,7 +115,7 @@ export async function POST(request) {
         // Se der erro, tentar cancelar o número no BRDID
         if (error.brdidAcquired) {
             try {
-                await fetch(`http://localhost:7000/api/did`, {
+                await fetch(`${process.env.BRDID_API_URL}/api/did`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'

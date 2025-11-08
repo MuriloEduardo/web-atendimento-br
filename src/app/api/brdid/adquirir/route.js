@@ -24,7 +24,7 @@ export async function POST(request) {
         }
 
         // 1. Adquirir o número via BRDID API
-        const brdidResponse = await fetch('http://localhost:7000/api/did', {
+        const brdidResponse = await fetch(`${process.env.BRDID_API_URL}/api/did`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
